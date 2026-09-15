@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
-    "vite": "^6.0.0"
+    "@cloudflare/vite-plugin": "^1.54.9",
+    "vite": "^6.0.0",
+    "wrangler": "^4.131.2"
   },
   "dependencies": {
-    "three": "^0.170.0",
-    "canvas-confetti": "^1.9.3"
+    "canvas-confetti": "^1.9.3",
+    "three": "^0.170.0"
   }
 }
