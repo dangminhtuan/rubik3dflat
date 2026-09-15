@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cyber Rubik 3D & 3 Vòng Tròn Đồng Tâm</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- Header gọn gàng tinh giản chữ -->
+  <header class="app-header">
+    <div class="logo-area">
+      <span class="logo-text">🎲 RUBIK 3D</span>
+      <span id="status-badge" class="badge-tag">NGUYÊN BẢN</span>
+    </div>
+
+    <!-- Bộ đếm gọn nhẹ -->
+    <div class="stats-bar">
+      <div class="stat-item"><span class="stat-label">BƯỚC:</span> <span id="move-count" class="stat-val">0</span></div>
+      <div class="stat-item"><span class="stat-label">GIỜ:</span> <span id="timer-display" class="stat-val">00:00.00</span></div>
+    </div>
+
+    <!-- Nút hành động nhanh -->
+    <div class="header-actions">
+      <button id="btn-sound-toggle" class="btn-header" title="Bật/Tắt âm thanh">🔊</button>
+      <button id="btn-center-cam" class="btn-header" title="Góc nhìn isometric chuẩn">🎯</button>
+      <button id="btn-reset" class="btn-header" title="Làm lại từ đầu">↺</button>
+      <button id="btn-scramble" class="btn-header btn-scramble">⚡ Xáo Trộn</button>
+    </div>
+  </header>
+
+  <!-- Bố cục chính tự thích ứng Desktop & Mobile (0 cuộn trang) -->
+  <main class="main-layout">
+    <!-- KHU VỰC 1: Khối 3D & 3 Gương Soi -->
+    <section class="viewport-3d-col">
+      <!-- Chip gương nhỏ gọn -->
+      <div class="overlay-mirrors-chip">
+        🪞 Gương sau: <span style="color:#22c55e">B</span> | <span style="color:#e11d48">L</span> | <span style="color:#ef4444">D</span>
+      </div>
+
+      <!-- Nút điều khiển Zoom nhanh -->
+      <div class="zoom-controls">
+        <button id="btn-zoom-in" class="btn-zoom" title="Phóng to (+)">+</button>
+        <button id="btn-zoom-out" class="btn-zoom" title="Thu nhỏ (−)">−</button>
+      </div>
+
+      <!-- Canvas 3D Three.js -->
+      <div id="rubik-canvas" class="canvas-wrapper"></div>
+
+      <!-- Thanh nút bấm xoay nhanh các tầng -->
+      <div class="controls-bar">
+        <div class="move-group">
+          <button class="btn-move" data-move="U">U</button>
+          <button class="btn-move" data-move="U'">U'</button>
+        </div>
+        <div class="move-group">
+          <button class="btn-move" data-move="D">D</button>
+          <button class="btn-move" data-move="D'">D'</button>
+        </div>
+        <div class="move-group">
+          <button class="btn-move" data-move="L">L</button>
+          <button class="btn-move" data-move="L'">L'</button>
+        </div>
+        <div class="move-group">
+          <button class="btn-move" data-move="R">R</button>
+          <button class="btn-move" data-move="R'">R'</button>
+        </div>
+        <div class="move-group">
+          <button class="btn-move" data-move="F">F</button>
+          <button class="btn-move" data-move="F'">F'</button>
+        </div>
+        <div class="move-group">
+          <button class="btn-move" data-move="B">B</button>
+          <button class="btn-move" data-move="B'">B'</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- KHU VỰC 2: Bản Đồ 3 Vòng Tròn Giao Điểm & Thanh Học Công Thức -->
+    <section class="right-panel">
+      <!-- Bản đồ 3 Vòng Tròn Đồng Tâm Mandala -->
+      <div class="mandala-section">
+        <div class="section-header">
+          <span class="section-title">🪐 3 VÒNG TRÒN (54 Ô)</span>
+          <span class="mandala-hint">💡 3D: Chạm tâm = Thuận, rìa = Nghịch | 2D: Chạm màu = Thuận, nhãn ngoài = Nghịch</span>
+        </div>
+        
+        <!-- Viewport SVG chứa 3 vòng tròn giao điểm -->
+        <div id="mandala-container" class="mandala-viewport"></div>
+      </div>
+
+      <!-- Thanh học công thức gọn gàng (Single Row Toolbar) -->
+      <div class="trainer-bar">
+        <select id="formula-select" class="formula-select" title="Chọn công thức"></select>
+        <div id="formula-steps" class="formula-steps-container"></div>
+        <button id="btn-step-next" class="btn-action" title="Đi từng bước">⏭</button>
+        <button id="btn-play-demo" class="btn-action primary" title="Chạy mẫu tự động">▶ Chạy</button>
+        <button id="btn-reset-formula" class="btn-action" title="Đặt lại">↺</button>
+        <span id="formula-desc" style="display: none;"></span>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
