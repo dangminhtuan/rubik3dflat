@@ -224,6 +224,8 @@ export class Rubik3D {
     let prevMousePos = { x: 0, y: 0 };
     let dragDist = 0;
     let prevTouchDist = 0;
+    let lastClickTime = 0;
+    let lastTouchTime = 0;
 
     this.spherical = new THREE.Spherical();
     this.spherical.setFromVector3(this.camera.position);
@@ -239,7 +241,10 @@ export class Rubik3D {
     };
 
     const handleDirectClick = (clientX, clientY) => {
-      if (this.isAnimating || !this.onDirectClick) return;
+      const now = performance.now();
+      // Chống double-fire / synthetic mouse events sau touch
+      if (now - lastClickTime < 350) return;
+      if (this.isAnimating || (this.animationQueue && this.animationQueue.length > 0) || !this.onDirectClick) return;
 
       const ndc = getPointerNdc(clientX, clientY);
       raycaster.setFromCamera(ndc, this.camera);
@@ -251,6 +256,7 @@ export class Rubik3D {
 
       if (intersects.length === 0) return;
 
+      lastClickTime = now;
       const hit = intersects[0];
       let targetMove = null;
 
@@ -297,6 +303,8 @@ export class Rubik3D {
 
     // 1. Kéo chuột xoay góc nhìn & Click trực tiếp
     this.container.addEventListener('mousedown', (e) => {
+      // Bỏ qua nếu vừa có sự kiện touch kích hoạt để tránh mouse event giả lập
+      if (Date.now() - lastTouchTime < 600) return;
       isDragging = true;
       downPos = { x: e.clientX, y: e.clientY };
       prevMousePos = { x: e.clientX, y: e.clientY };
@@ -305,6 +313,7 @@ export class Rubik3D {
     });
 
     window.addEventListener('mousemove', (e) => {
+      if (Date.now() - lastTouchTime < 600) return;
       if (!isDragging) {
         // Hiển thị con trỏ pointer & tooltip khi rê chuột qua ô Rubik hoặc gương
         const ndc = getPointerNdc(e.clientX, e.clientY);
@@ -342,6 +351,7 @@ export class Rubik3D {
     });
 
     window.addEventListener('mouseup', (e) => {
+      if (Date.now() - lastTouchTime < 600) return;
       if (!isDragging) return;
       isDragging = false;
       this.container.style.cursor = 'grab';
@@ -364,6 +374,7 @@ export class Rubik3D {
 
     // 3. Touch support: 1 ngón xoay/tap, 2 ngón chụm phóng to/thu nhỏ (Mobile)
     this.container.addEventListener('touchstart', (e) => {
+      lastTouchTime = Date.now();
       if (e.touches.length === 1) {
         isDragging = true;
         downPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
