@@ -231,9 +231,7 @@ body {
 /* Các trạng thái ẩn hiện tùy biến - ICON ONLY MODE */
 body.icon-only-mode .btn-lbl,
 body.icon-only-mode .badge-lbl,
-body.icon-only-mode .hint-text,
-body.icon-only-mode .coach-info-wrapper,
-body.icon-only-mode #formula-desc {
+body.icon-only-mode .hint-text {
   display: none !important;
 }
 
@@ -599,11 +597,114 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   display: flex;
-  align-items: center;
-  padding: 0 10px;
-  gap: 8px;
+  flex-direction: column;
+  padding: 3px 8px;
+  gap: 3px;
   z-index: 10;
   overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* TẦNG 1: BẢNG SƯ PHẠM (LUÔN HIỂN THỊ ĐẦY ĐỦ) */
+.coach-pedagogy-banner {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: 5px;
+  padding: 1px 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pedagogy-info-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.pedagogy-separator {
+  color: #475569;
+  font-size: 10px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.formula-pedagogy-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.coach-stage-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.coach-case-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.coach-formula-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1.5px 7px;
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.coach-formula-badge:hover {
+  background: rgba(245, 158, 11, 0.4);
+  color: #fef08a;
+  border-color: rgba(245, 158, 11, 0.9);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.coach-hint-text {
+  font-size: 9px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* TẦNG 2: HÀNG THAO TÁC & DÃY NƯỚC ĐI */
+.trainer-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .bottom-mode-tabs {
@@ -620,82 +721,9 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
 .formula-panel-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   overflow: hidden;
-}
-
-.coach-stage-badge {
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.coach-info-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 140px;
-  max-width: 320px;
-  overflow: hidden;
-  line-height: 1.25;
-}
-
-.coach-case-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.coach-case-name {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #f1f5f9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.coach-formula-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 6px;
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.45);
-  border-radius: 4px;
-  font-size: 8.5px;
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-}
-
-.coach-formula-badge:hover {
-  background: rgba(245, 158, 11, 0.35);
-  color: #fef08a;
-  border-color: rgba(245, 158, 11, 0.8);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-}
-
-.coach-hint-text {
-  font-size: 9px;
-  color: #94a3b8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .btn-undo {
@@ -896,37 +924,41 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   }
 
   .trainer-bar {
-    height: 38px;
-    min-height: 38px;
-    padding: 0 4px;
-    gap: 4px;
+    padding: 2px 4px;
+    gap: 2px;
   }
 
-  .coach-panel-content {
+  .coach-pedagogy-banner {
+    min-height: 20px;
+    padding: 1px 4px;
+  }
+
+  .pedagogy-info-container {
     gap: 4px;
   }
 
   .coach-stage-badge {
-    padding: 2px 5px;
-    font-size: 9.5px;
-  }
-
-  .coach-info-wrapper {
-    min-width: 50px;
-    max-width: 120px;
+    padding: 1.5px 4px;
+    font-size: 8.5px;
   }
 
   .coach-case-name {
-    font-size: 9.5px;
+    font-size: 9px;
   }
 
   .coach-formula-badge {
-    font-size: 7.5px;
-    padding: 0 4px;
+    font-size: 8px;
+    padding: 1px 5px;
   }
 
   .coach-hint-text {
-    display: none; /* Ẩn text gợi ý dài để nhường toàn bộ chỗ cho các nút hành động */
+    font-size: 8.5px;
+    display: inline-block;
+  }
+
+  .trainer-controls-row {
+    min-height: 30px;
+    gap: 4px;
   }
 
   .formula-select {

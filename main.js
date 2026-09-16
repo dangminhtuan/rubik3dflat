@@ -74,6 +74,8 @@ class App {
     this.tabModeFormula = document.getElementById('tab-mode-formula');
     this.coachPanel = document.getElementById('coach-panel');
     this.formulaPanel = document.getElementById('formula-panel');
+    this.coachPedagogyInfo = document.getElementById('coach-pedagogy-info');
+    this.formulaPedagogyInfo = document.getElementById('formula-pedagogy-info');
 
     // Controls Gia Sư AI Coach
     this.coachStageBadge = document.getElementById('coach-stage-badge');
@@ -313,6 +315,8 @@ class App {
       this.tabModeCoach.addEventListener('click', () => {
         this.tabModeCoach.classList.add('active');
         this.tabModeFormula.classList.remove('active');
+        if (this.coachPedagogyInfo) this.coachPedagogyInfo.style.display = 'flex';
+        if (this.formulaPedagogyInfo) this.formulaPedagogyInfo.style.display = 'none';
         this.coachPanel.style.display = 'flex';
         this.formulaPanel.style.display = 'none';
         if (this.btnCoachStep) this.btnCoachStep.style.display = 'inline-flex';
@@ -322,6 +326,8 @@ class App {
       this.tabModeFormula.addEventListener('click', () => {
         this.tabModeFormula.classList.add('active');
         this.tabModeCoach.classList.remove('active');
+        if (this.coachPedagogyInfo) this.coachPedagogyInfo.style.display = 'none';
+        if (this.formulaPedagogyInfo) this.formulaPedagogyInfo.style.display = 'flex';
         this.formulaPanel.style.display = 'flex';
         this.coachPanel.style.display = 'none';
         if (this.btnCoachStep) this.btnCoachStep.style.display = 'none';
@@ -610,6 +616,20 @@ class App {
   updateCoachUI() {
     if (!this.coachStageBadge) return;
 
+    // 1. Nếu hàng đợi vẫn còn nước đi (người dùng đang xoay dở chuỗi công thức của bước hiện tại):
+    // Các nước đi trung gian tạm thời làm lệch một số viên (VD: xoay L nhấc cạnh trắng).
+    // Tuyệt đối KHÔNG phân tích lại trạng thái và KHÔNG ghi đè hàng đợi khi hàng đợi chưa đi hết!
+    if (this.currentCoachMoves && this.currentCoachMoves.length > 0) {
+      this.renderCoachMovePills();
+      if (this.btnCoachUndo) {
+        this.btnCoachUndo.disabled = (this.coachUndoStack.length === 0);
+      }
+      return;
+    }
+
+    // 2. Khi hàng đợi đã đi hết (currentCoachMoves.length === 0):
+    // Khối Rubik đã hoàn tất chuỗi công thức và trở về trạng thái ổn định.
+    // Lúc này phân tích lại trạng thái 54 ô màu của khối:
     const analysis = this.coach.analyze(this.state);
 
     // Ăn mừng khi tiến sang bước mới
@@ -617,49 +637,16 @@ class App {
       sound.playVictory();
     }
 
-    // Chỉ nạp lại danh sách nước đi mới khi:
-    // 1. Chuyển sang bước LBL mới
-    // 2. Hàng đợi nước đi hiện tại đã đi hết (length === 0)
-    // 3. Toàn bộ khối Rubik đã hoàn thành
-    if (analysis.stage !== this.lastCoachStage || !this.currentCoachMoves || this.currentCoachMoves.length === 0 || analysis.isSolved) {
-      this.currentCoachMoves = analysis.moves ? [...analysis.moves] : [];
-    }
+    this.currentCoachMoves = analysis.moves ? [...analysis.moves] : [];
     this.lastCoachStage = analysis.stage;
+    this.renderCoachFullUI(analysis);
+  }
 
-    // Cập nhật huy hiệu tiến trình 7 bước
-    if (analysis.isSolved || analysis.stage === 8) {
-      this.coachStageBadge.innerHTML = '🎉 <span class="badge-lbl">HOÀN THÀNH</span>';
-      this.coachStageBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-      this.coachStageBadge.style.color = '#34d399';
-      this.coachStageBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-    } else {
-      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">BƯỚC </span>${analysis.stage}/7`;
-      this.coachStageBadge.style.background = 'rgba(56, 189, 248, 0.15)';
-      this.coachStageBadge.style.color = '#38bdf8';
-      this.coachStageBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
-    }
-
-    this.coachCaseName.textContent = analysis.caseName;
-    this.currentCoachFormulaId = analysis.formulaId || null;
-    if (this.coachFormulaBadge) {
-      if (analysis.formulaTag && !analysis.isSolved) {
-        this.coachFormulaBadge.textContent = analysis.formulaTag;
-        this.coachFormulaBadge.title = analysis.formulaId
-          ? `Bấm để mở "${analysis.formulaTag}" trong Thư viện Mẫu`
-          : analysis.formulaTag;
-        this.coachFormulaBadge.style.display = 'inline-flex';
-      } else {
-        this.coachFormulaBadge.style.display = 'none';
-      }
-    }
-    const fullHint = analysis.formula ? `${analysis.formula} — ${analysis.hint}` : analysis.hint;
-    this.coachHintText.textContent = fullHint;
-    this.coachHintText.title = fullHint;
-
-    // Hiển thị các ô nước đi
+  renderCoachMovePills() {
+    if (!this.coachSteps) return;
     this.coachSteps.innerHTML = '';
     if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) {
-      if (analysis.isSolved) {
+      if (this.currentCoachAnalysis && this.currentCoachAnalysis.isSolved) {
         const span = document.createElement('span');
         span.className = 'coach-steps-badge';
         span.innerHTML = '✨ <span class="btn-lbl">6 Mặt Hoàn Hảo</span>';
@@ -686,6 +673,48 @@ class App {
       if (this.btnCoachStep) this.btnCoachStep.disabled = false;
       if (this.btnCoachStage) this.btnCoachStage.disabled = false;
     }
+  }
+
+  renderCoachFullUI(analysis) {
+    this.currentCoachAnalysis = analysis;
+
+    // Cập nhật huy hiệu tiến trình 7 bước
+    if (analysis.isSolved || analysis.stage === 8) {
+      this.coachStageBadge.innerHTML = '🎉 <span class="badge-lbl">HOÀN THÀNH</span>';
+      this.coachStageBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      this.coachStageBadge.style.color = '#34d399';
+      this.coachStageBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+    } else {
+      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">BƯỚC </span>${analysis.stage}/7`;
+      this.coachStageBadge.style.background = 'rgba(56, 189, 248, 0.15)';
+      this.coachStageBadge.style.color = '#38bdf8';
+      this.coachStageBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+    }
+
+    if (this.coachCaseName) {
+      this.coachCaseName.textContent = analysis.caseName;
+    }
+
+    this.currentCoachFormulaId = analysis.formulaId || null;
+    if (this.coachFormulaBadge) {
+      if (analysis.formulaTag && !analysis.isSolved) {
+        this.coachFormulaBadge.textContent = analysis.formulaTag;
+        this.coachFormulaBadge.title = analysis.formulaId
+          ? `Bấm để mở "${analysis.formulaTag}" trong Thư viện Mẫu`
+          : analysis.formulaTag;
+        this.coachFormulaBadge.style.display = 'inline-flex';
+      } else {
+        this.coachFormulaBadge.style.display = 'none';
+      }
+    }
+
+    if (this.coachHintText) {
+      const fullHint = analysis.formula ? `${analysis.formula} — ${analysis.hint}` : analysis.hint;
+      this.coachHintText.textContent = fullHint;
+      this.coachHintText.title = fullHint;
+    }
+
+    this.renderCoachMovePills();
 
     if (this.btnCoachUndo) {
       this.btnCoachUndo.disabled = (this.coachUndoStack.length === 0);
@@ -737,6 +766,8 @@ class App {
     if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) {
       const analysis = this.coach.analyze(this.state);
       this.currentCoachMoves = analysis.moves ? [...analysis.moves] : [];
+      this.lastCoachStage = analysis.stage;
+      this.renderCoachFullUI(analysis);
     }
 
     if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) return;
