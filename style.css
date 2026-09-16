@@ -590,15 +590,14 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   object-fit: contain;
 }
 
-/* Thanh Trainer & Gia Sư tinh giản 1 dòng duy nhất (Zero Scroll) */
+/* Thanh Trainer & Gia Sư 2 Tầng Sư Phạm Tinh Gọn (Zero Scroll) */
 .trainer-bar {
-  height: 44px;
-  min-height: 44px;
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
-  padding: 3px 8px;
+  padding: 4px 8px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom, 6px));
   gap: 3px;
   z-index: 10;
   overflow: hidden;
@@ -924,13 +923,15 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   }
 
   .trainer-bar {
-    padding: 2px 4px;
-    gap: 2px;
+    padding: 3px 6px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 6px));
+    gap: 3px;
   }
 
   .coach-pedagogy-banner {
-    min-height: 20px;
-    padding: 1px 4px;
+    min-height: 22px;
+    height: 22px;
+    padding: 1px 5px;
   }
 
   .pedagogy-info-container {
@@ -957,7 +958,8 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   }
 
   .trainer-controls-row {
-    min-height: 30px;
+    min-height: 32px;
+    height: 32px;
     gap: 4px;
   }
 
