@@ -380,6 +380,17 @@ class App {
       if (this.btnCoachUndo) {
         this.btnCoachUndo.disabled = false;
       }
+
+      // Tịnh tiến hàng đợi gợi ý: Nếu nước đi khớp với nước tiếp theo, loại bỏ nước đó khỏi hàng đợi
+      if (this.currentCoachMoves && this.currentCoachMoves.length > 0 && this.currentCoachMoves[0] === move) {
+        this.currentCoachMoves.shift();
+      } else {
+        // Người dùng tự xoay nước khác -> reset hàng đợi để Gia Sư tính toán lại từ thế cờ mới
+        this.currentCoachMoves = [];
+      }
+    } else {
+      // Hoàn tác -> tính lại từ đầu
+      this.currentCoachMoves = [];
     }
 
     if (!this.timerRunning && this.isScrambled) {
@@ -455,6 +466,7 @@ class App {
     this.isScrambling = true;
     this.coachUndoStack = [];
     this.lastCoachStage = 0;
+    this.currentCoachMoves = [];
     if (this.btnCoachUndo) {
       this.btnCoachUndo.disabled = true;
     }
@@ -485,6 +497,7 @@ class App {
     this.isScrambling = false;
     this.coachUndoStack = [];
     this.lastCoachStage = 0;
+    this.currentCoachMoves = [];
     if (this.btnCoachUndo) {
       this.btnCoachUndo.disabled = true;
     }
@@ -571,11 +584,18 @@ class App {
     if (!this.coachStageBadge) return;
 
     const analysis = this.coach.analyze(this.state);
-    this.currentCoachMoves = analysis.moves || [];
 
     // Ăn mừng khi tiến sang bước mới
     if (this.lastCoachStage > 0 && analysis.stage > this.lastCoachStage && analysis.stage <= 8) {
       sound.playVictory();
+    }
+
+    // Chỉ nạp lại danh sách nước đi mới khi:
+    // 1. Chuyển sang bước LBL mới
+    // 2. Hàng đợi nước đi hiện tại đã đi hết (length === 0)
+    // 3. Toàn bộ khối Rubik đã hoàn thành
+    if (analysis.stage !== this.lastCoachStage || !this.currentCoachMoves || this.currentCoachMoves.length === 0 || analysis.isSolved) {
+      this.currentCoachMoves = analysis.moves ? [...analysis.moves] : [];
     }
     this.lastCoachStage = analysis.stage;
 
@@ -652,6 +672,7 @@ class App {
     if (!moves || moves.length === 0) return;
 
     this.isAutoSolving = true;
+    this.currentCoachMoves = [];
     if (this.btnCoachAuto) {
       this.btnCoachAuto.innerHTML = '⏸ <span class="btn-lbl">Tạm Dừng</span>';
       this.btnCoachAuto.classList.remove('primary');
@@ -676,7 +697,7 @@ class App {
 
     if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) {
       const analysis = this.coach.analyze(this.state);
-      this.currentCoachMoves = analysis.moves || [];
+      this.currentCoachMoves = analysis.moves ? [...analysis.moves] : [];
     }
 
     if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) return;
@@ -693,6 +714,7 @@ class App {
     const moves = analysis.moves;
     if (!moves || moves.length === 0) return;
 
+    this.currentCoachMoves = [];
     this.savedNormalSpeed = this.rubik3D.animationSpeed || 300;
     this.rubik3D.animationSpeed = 160;
 
