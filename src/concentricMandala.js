@@ -24,12 +24,20 @@ export class ConcentricMandala {
     this.svg.setAttribute('class', 'w-full h-full select-none');
     this.container.appendChild(this.svg);
 
-    // Filter glow
+    // Filter glow cho chấm và vòng neon
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     defs.innerHTML = `
       <filter id="dot-glow" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur stdDeviation="2.5" result="blur" />
         <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id="ring-neon-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
           <feMergeNode in="blur" />
           <feMergeNode in="SourceGraphic" />
         </feMerge>
@@ -88,8 +96,9 @@ export class ConcentricMandala {
         circle.setAttribute('fill', 'none');
         circle.setAttribute('stroke', '#475569');
         circle.setAttribute('stroke-width', rIdx === 1 ? '1.5' : '1.0');
-        circle.setAttribute('opacity', '0.45');
-        circle.setAttribute('class', `ring-${c.id}-${rIdx} transition-all duration-300`);
+        circle.setAttribute('opacity', '0.35');
+        circle.setAttribute('class', `ring-${c.id}-${rIdx}`);
+        circle.style.transition = 'stroke 0.25s ease, opacity 0.25s ease, stroke-width 0.25s ease, filter 0.25s ease';
         this.ringsGroup.appendChild(circle);
         this.ringElements.push({ element: circle, centerId: c.id, layerIdx: rIdx });
       });
@@ -173,6 +182,18 @@ export class ConcentricMandala {
         if (this.onMoveRequest) {
           const move = e.shiftKey ? def.prime : def.move;
           this.onMoveRequest(move);
+        }
+      });
+
+      // Hover xem trước vòng tròn tương ứng sáng lên
+      faceG.addEventListener('mouseenter', () => {
+        if (!this.currentAnim) {
+          this.previewRingHover(def.move);
+        }
+      });
+      faceG.addEventListener('mouseleave', () => {
+        if (!this.currentAnim) {
+          this.resetRingHighlights();
         }
       });
 
@@ -294,6 +315,9 @@ export class ConcentricMandala {
         haloRing.setAttribute('stroke', '#38bdf8');
         haloRing.setAttribute('opacity', '0.9');
         label.setAttribute('fill', '#38bdf8');
+        if (!this.currentAnim) {
+          this.previewRingHover(def.prime);
+        }
       });
       badgeGroup.addEventListener('mouseleave', () => {
         badgeBg.setAttribute('fill', '#090d16');
@@ -302,6 +326,9 @@ export class ConcentricMandala {
         haloRing.setAttribute('stroke', FACE_COLORS[faceKey] || '#64748b');
         haloRing.setAttribute('opacity', '0.4');
         label.setAttribute('fill', '#f8fafc');
+        if (!this.currentAnim) {
+          this.resetRingHighlights();
+        }
       });
 
       // Click vào vòng hoặc lân cận vòng -> Xoay ngược
@@ -497,8 +524,8 @@ export class ConcentricMandala {
       });
     });
 
-    // Phát sáng dải vòng tròn
-    this.highlightMove(move);
+    // Phát sáng duy nhất dải vòng tròn chuyển động
+    this.highlightMove(move, duration);
 
     // Chạy hoạt họa 60fps mượt mà
     const startTime = performance.now();
@@ -531,16 +558,92 @@ export class ConcentricMandala {
     this.currentAnim = requestAnimationFrame(animLoop);
   }
 
-  // Hiệu ứng phát sáng dải vòng tròn khi xoay tầng
-  highlightMove(move) {
-    const circles = this.ringsGroup.querySelectorAll('circle');
-    circles.forEach(c => {
-      c.setAttribute('stroke', '#38bdf8');
-      c.setAttribute('opacity', '0.85');
-      setTimeout(() => {
-        c.setAttribute('stroke', '#475569');
-        c.setAttribute('opacity', '0.45');
-      }, 300);
+  // Lấy ID tâm vòng tròn tương ứng với từng mặt: U/D -> C1, F/B -> C2, R/L -> C3
+  getCenterForMove(move) {
+    if (!move) return null;
+    const faceKey = move[0];
+    if (faceKey === 'U' || faceKey === 'D') return 'C1';
+    if (faceKey === 'F' || faceKey === 'B') return 'C2';
+    if (faceKey === 'R' || faceKey === 'L') return 'C3';
+    return null;
+  }
+
+  // Hiệu ứng phát sáng RIÊNG BIỆT cho duy nhất vòng tròn chuyển động (đúng như hình minh họa)
+  highlightMove(move, duration = 160) {
+    const activeCenterId = this.getCenterForMove(move);
+    if (!activeCenterId || !this.ringElements) return;
+
+    if (this.highlightTimeout) {
+      clearTimeout(this.highlightTimeout);
+      this.highlightTimeout = null;
+    }
+
+    this.ringElements.forEach(({ element, centerId, layerIdx }) => {
+      if (centerId === activeCenterId) {
+        if (layerIdx === 1) {
+          // Vòng giữa (quỹ đạo chính của các chấm giao điểm): sáng rực rỡ neon với glow
+          element.setAttribute('stroke', '#38bdf8');
+          element.setAttribute('stroke-width', '2.8');
+          element.setAttribute('opacity', '1.0');
+          element.setAttribute('filter', 'url(#ring-neon-glow)');
+        } else {
+          // 2 vòng phụ trong và ngoài cùng tâm: sáng xanh rõ nét
+          element.setAttribute('stroke', '#0284c7');
+          element.setAttribute('stroke-width', '1.5');
+          element.setAttribute('opacity', '0.65');
+          element.removeAttribute('filter');
+        }
+      } else {
+        // 2 tâm còn lại: chìm mờ hẳn xuống nền tối để tôn vòng đang quay
+        element.setAttribute('stroke', '#334155');
+        element.setAttribute('stroke-width', '1.0');
+        element.setAttribute('opacity', '0.15');
+        element.removeAttribute('filter');
+      }
+    });
+
+    // Sau khi hoạt họa kết thúc, chuyển tiếp mượt mà về trạng thái bình thường
+    this.highlightTimeout = setTimeout(() => {
+      this.resetRingHighlights();
+    }, Math.max(duration + 80, 240));
+  }
+
+  // Hiệu ứng xem trước khi rê chuột qua cụm mặt hoặc nút xoay
+  previewRingHover(move) {
+    if (this.currentAnim) return;
+    const centerId = this.getCenterForMove(move);
+    if (!centerId || !this.ringElements) return;
+
+    this.ringElements.forEach(({ element, centerId: cid, layerIdx }) => {
+      if (cid === centerId) {
+        if (layerIdx === 1) {
+          element.setAttribute('stroke', '#38bdf8');
+          element.setAttribute('stroke-width', '2.2');
+          element.setAttribute('opacity', '0.85');
+        } else {
+          element.setAttribute('stroke', '#0ea5e9');
+          element.setAttribute('stroke-width', '1.3');
+          element.setAttribute('opacity', '0.55');
+        }
+      } else {
+        element.setAttribute('stroke', '#334155');
+        element.setAttribute('stroke-width', '1.0');
+        element.setAttribute('opacity', '0.2');
+      }
+    });
+  }
+
+  resetRingHighlights() {
+    if (this.highlightTimeout) {
+      clearTimeout(this.highlightTimeout);
+      this.highlightTimeout = null;
+    }
+    if (!this.ringElements) return;
+    this.ringElements.forEach(({ element, layerIdx }) => {
+      element.setAttribute('stroke', '#475569');
+      element.setAttribute('stroke-width', layerIdx === 1 ? '1.5' : '1.0');
+      element.setAttribute('opacity', '0.35');
+      element.removeAttribute('filter');
     });
   }
 }
