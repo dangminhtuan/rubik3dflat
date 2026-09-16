@@ -59,6 +59,13 @@
                 <span class="option-desc">Âm thanh click khi xoay khối</span>
               </div>
             </label>
+            <label class="popover-option">
+              <input type="checkbox" id="chk-auto-solve">
+              <div class="option-info">
+                <span class="option-title">⚡ Nút Tự Giải Hết</span>
+                <span class="option-desc">Hiện nút máy tự xoay giải 6 mặt (Mặc định ẩn)</span>
+              </div>
+            </label>
           </div>
         </div>
       </div>
@@ -151,14 +158,15 @@
 
         <!-- Khối 1: Gia Sư AI (LBL 7 Bước) -->
         <div id="coach-panel" class="coach-panel-content">
-          <span id="coach-stage-badge" class="coach-stage-badge">🏁 <span class="badge-lbl">CÒN </span>0<span class="badge-lbl"> NƯỚC</span></span>
+          <span id="coach-stage-badge" class="coach-stage-badge">🏁 <span class="badge-lbl">BƯỚC </span>1/7</span>
           <div class="coach-info-wrapper">
             <span id="coach-case-name" class="coach-case-name">Khối Đang Nguyên Bản</span>
             <span id="coach-hint-text" class="coach-hint-text">Bấm "Xáo Trộn" góc trên để bắt đầu</span>
           </div>
           <div id="coach-steps" class="formula-steps-container"></div>
-          <button id="btn-coach-auto" class="btn-action primary" title="Máy tự động xoay giải toàn bộ về đích 6 mặt">⚡ <span class="btn-lbl">Tự Giải Hết</span></button>
-          <button id="btn-coach-step" class="btn-action" title="Máy tự giải 1 bước tiếp theo">▶ <span class="btn-lbl">Bước Tiếp</span></button>
+          <button id="btn-coach-step" class="btn-action" title="Xoay đúng 1 nước tiếp theo (Nước đôi L2 = bấm L 2 lần)">▶ <span class="btn-lbl">1 Nước</span></button>
+          <button id="btn-coach-stage" class="btn-action primary" title="Máy tự giải hoàn tất bước này rồi dừng lại">⏭ <span class="btn-lbl">Xong Bước</span></button>
+          <button id="btn-coach-auto" class="btn-action" title="Máy tự động xoay giải toàn bộ về đích 6 mặt" style="display: none;">⚡ <span class="btn-lbl">Tự Giải</span></button>
           <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" disabled>↩️ <span class="btn-lbl">Hoàn Tác</span></button>
         </div>
 

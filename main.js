@@ -48,6 +48,7 @@ class App {
     this.chkStats = document.getElementById('chk-stats');
     this.chkMoveBar = document.getElementById('chk-move-bar');
     this.chkSound = document.getElementById('chk-sound');
+    this.chkAutoSolve = document.getElementById('chk-auto-solve');
     this.statsBar = document.getElementById('stats-bar');
     this.quickMoveBar = document.getElementById('quick-move-bar');
 
@@ -57,6 +58,7 @@ class App {
       stats: localStorage.getItem('rubik_pref_stats') !== 'false',
       moveBar: localStorage.getItem('rubik_pref_moveBar') !== 'false',
       sound: localStorage.getItem('rubik_pref_sound') !== 'false',
+      autoSolve: localStorage.getItem('rubik_pref_autoSolve') === 'true', // Mặc định tắt (false)
     };
 
     // Controls học công thức
@@ -78,8 +80,9 @@ class App {
     this.coachCaseName = document.getElementById('coach-case-name');
     this.coachHintText = document.getElementById('coach-hint-text');
     this.coachSteps = document.getElementById('coach-steps');
-    this.btnCoachAuto = document.getElementById('btn-coach-auto');
     this.btnCoachStep = document.getElementById('btn-coach-step');
+    this.btnCoachStage = document.getElementById('btn-coach-stage');
+    this.btnCoachAuto = document.getElementById('btn-coach-auto');
     this.btnCoachUndo = document.getElementById('btn-coach-undo');
     if (this.btnCoachUndo) this.btnCoachUndo.disabled = true;
 
@@ -117,10 +120,17 @@ class App {
     sound.enabled = this.prefs.sound;
     if (this.chkSound) this.chkSound.checked = this.prefs.sound;
 
+    // 5. Nút Tự Giải Hết (Mặc định ẩn, bật trong popover mắt)
+    if (this.btnCoachAuto) {
+      this.btnCoachAuto.style.display = this.prefs.autoSolve ? 'inline-flex' : 'none';
+    }
+    if (this.chkAutoSolve) this.chkAutoSolve.checked = this.prefs.autoSolve;
+
     localStorage.setItem('rubik_pref_labels', this.prefs.labels);
     localStorage.setItem('rubik_pref_stats', this.prefs.stats);
     localStorage.setItem('rubik_pref_moveBar', this.prefs.moveBar);
     localStorage.setItem('rubik_pref_sound', this.prefs.sound);
+    localStorage.setItem('rubik_pref_autoSolve', this.prefs.autoSolve);
   }
 
   initComponents() {
@@ -210,6 +220,12 @@ class App {
     if (this.chkSound) {
       this.chkSound.addEventListener('change', (e) => {
         this.prefs.sound = e.target.checked;
+        this.applyPreferences();
+      });
+    }
+    if (this.chkAutoSolve) {
+      this.chkAutoSolve.addEventListener('change', (e) => {
+        this.prefs.autoSolve = e.target.checked;
         this.applyPreferences();
       });
     }
@@ -320,6 +336,12 @@ class App {
       });
     }
 
+    if (this.btnCoachStage) {
+      this.btnCoachStage.addEventListener('click', () => {
+        this.stageSolve();
+      });
+    }
+
     if (this.btnCoachUndo) {
       this.btnCoachUndo.addEventListener('click', () => {
         this.undoCoachMove();
@@ -391,7 +413,7 @@ class App {
       } else {
         const remaining = this.rubik3D.animationQueue.length;
         if (this.coachStageBadge) {
-          this.coachStageBadge.innerHTML = `🎯 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
+          this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
         }
       }
     } else if (isQueueEmpty) {
@@ -435,7 +457,7 @@ class App {
       this.btnCoachUndo.disabled = true;
     }
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
+      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
@@ -465,7 +487,7 @@ class App {
       this.btnCoachUndo.disabled = true;
     }
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
+      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
@@ -555,22 +577,23 @@ class App {
     }
     this.lastCoachStage = analysis.stage;
 
-    // Cập nhật huy hiệu đếm ngược
+    // Cập nhật huy hiệu tiến trình 7 bước
     if (analysis.isSolved || analysis.stage === 8) {
       this.coachStageBadge.innerHTML = '🎉 <span class="badge-lbl">HOÀN THÀNH</span>';
       this.coachStageBadge.style.background = 'rgba(16, 185, 129, 0.2)';
       this.coachStageBadge.style.color = '#34d399';
       this.coachStageBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
     } else {
-      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${analysis.remainingCount}<span class="badge-lbl"> NƯỚC</span>`;
+      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">BƯỚC </span>${analysis.stage}/7`;
       this.coachStageBadge.style.background = 'rgba(56, 189, 248, 0.15)';
       this.coachStageBadge.style.color = '#38bdf8';
       this.coachStageBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
     }
 
     this.coachCaseName.textContent = analysis.caseName;
-    this.coachHintText.textContent = analysis.hint;
-    this.coachHintText.title = analysis.hint;
+    const fullHint = analysis.formula ? `${analysis.formula} — ${analysis.hint}` : analysis.hint;
+    this.coachHintText.textContent = fullHint;
+    this.coachHintText.title = fullHint;
 
     // Hiển thị các ô nước đi
     this.coachSteps.innerHTML = '';
@@ -581,33 +604,26 @@ class App {
         span.innerHTML = '✨ <span class="btn-lbl">6 Mặt Hoàn Hảo</span>';
         this.coachSteps.appendChild(span);
       }
-      if (this.btnCoachAuto) {
-        this.btnCoachAuto.disabled = true;
-        this.btnCoachAuto.style.opacity = '0.5';
-        this.btnCoachAuto.style.cursor = 'not-allowed';
-      }
-      if (this.btnCoachStep) {
-        this.btnCoachStep.disabled = true;
-        this.btnCoachStep.style.opacity = '0.5';
-        this.btnCoachStep.style.cursor = 'not-allowed';
-      }
+      if (this.btnCoachAuto) this.btnCoachAuto.disabled = true;
+      if (this.btnCoachStep) this.btnCoachStep.disabled = true;
+      if (this.btnCoachStage) this.btnCoachStage.disabled = true;
     } else {
       this.currentCoachMoves.forEach((m, idx) => {
         const span = document.createElement('span');
         span.className = idx === 0 ? 'move-pill next-move' : 'move-pill';
         span.textContent = m;
+        span.title = m.includes('2')
+          ? `Nước đôi ${m}: Bấm phím ${m[0]} 2 lần (hoặc bấm vào đây để xoay)`
+          : `Bấm để xoay ${m}`;
+        span.style.cursor = 'pointer';
+        span.addEventListener('click', () => {
+          this.executeMove(m);
+        });
         this.coachSteps.appendChild(span);
       });
-      if (this.btnCoachAuto) {
-        this.btnCoachAuto.disabled = false;
-        this.btnCoachAuto.style.opacity = '1';
-        this.btnCoachAuto.style.cursor = 'pointer';
-      }
-      if (this.btnCoachStep) {
-        this.btnCoachStep.disabled = false;
-        this.btnCoachStep.style.opacity = '1';
-        this.btnCoachStep.style.cursor = 'pointer';
-      }
+      if (this.btnCoachAuto) this.btnCoachAuto.disabled = false;
+      if (this.btnCoachStep) this.btnCoachStep.disabled = false;
+      if (this.btnCoachStage) this.btnCoachStage.disabled = false;
     }
 
     if (this.btnCoachUndo) {
@@ -621,7 +637,7 @@ class App {
       this.rubik3D.animationQueue = [];
       this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
       if (this.btnCoachAuto) {
-        this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
+        this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải</span>';
         this.btnCoachAuto.classList.add('primary');
       }
       this.updateCoachUI();
@@ -656,11 +672,36 @@ class App {
     if (this.rubik3D.isAnimating || (this.rubik3D.animationQueue && this.rubik3D.animationQueue.length > 0)) return;
     if (this.state.isSolved()) return;
 
-    const moves = this.state.solve();
+    if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) {
+      const analysis = this.coach.analyze(this.state);
+      this.currentCoachMoves = analysis.moves || [];
+    }
+
+    if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) return;
+
+    const nextMove = this.currentCoachMoves[0];
+    this.executeMove(nextMove);
+  }
+
+  stageSolve() {
+    if (this.rubik3D.isAnimating || (this.rubik3D.animationQueue && this.rubik3D.animationQueue.length > 0)) return;
+    if (this.state.isSolved()) return;
+
+    const analysis = this.coach.analyze(this.state);
+    const moves = analysis.moves;
     if (!moves || moves.length === 0) return;
 
-    const nextMove = moves[0];
-    this.executeMove(nextMove);
+    this.savedNormalSpeed = this.rubik3D.animationSpeed || 300;
+    this.rubik3D.animationSpeed = 160;
+
+    moves.forEach(m => {
+      this.moveCount++;
+      this.rubik3D.queueMove(m);
+    });
+    this.moveCountEl.textContent = this.moveCount;
+    if (!this.timerRunning && this.isScrambled) {
+      this.startTimer();
+    }
   }
 
   undoCoachMove() {
