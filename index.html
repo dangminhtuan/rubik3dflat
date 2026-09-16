@@ -78,15 +78,21 @@
 
     <!-- KHU VỰC 2: Bản Đồ 3 Vòng Tròn Giao Điểm & Thanh Học Công Thức -->
     <section class="right-panel">
-      <!-- Bản đồ 3 Vòng Tròn Đồng Tâm Mandala -->
+      <!-- Bản đồ phẳng hóa 2D (Chuyển đổi giữa 3 Vòng Tròn và Hướng Tâm) -->
       <div class="mandala-section">
         <div class="section-header">
-          <span class="section-title">🪐 3 VÒNG TRÒN (54 Ô)</span>
-          <span class="mandala-hint">💡 3D: Chạm tâm = Thuận, rìa = Nghịch | 2D: Chạm màu = Thuận, nhãn ngoài = Nghịch</span>
+          <div class="view-mode-tabs">
+            <button id="tab-mandala" class="tab-btn active" title="Bản đồ 3 Vòng Tròn Giao Điểm">🪐 3 VÒNG TRÒN</button>
+            <button id="tab-dartboard" class="tab-btn" title="Bản đồ Tròn Hướng Tâm (Bia Bắn 54 Ô)">🎯 HƯỚNG TÂM</button>
+          </div>
+          <span id="mandala-hint" class="mandala-hint">💡 2D: Chạm màu = Thuận, nhãn ngoài = Nghịch</span>
         </div>
         
-        <!-- Viewport SVG chứa 3 vòng tròn giao điểm -->
+        <!-- Viewport SVG 1: 3 Vòng tròn giao điểm -->
         <div id="mandala-container" class="mandala-viewport"></div>
+
+        <!-- Viewport SVG 2: Bia bắn tròn hướng tâm -->
+        <div id="dartboard-container" class="mandala-viewport" style="display: none;"></div>
       </div>
 
       <!-- Thanh học công thức gọn gàng (Single Row Toolbar) -->

@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { RubikState, FACE_COLORS, FACE_NAMES } from './src/rubikState.js';
 import { Rubik3D } from './src/rubik3d.js';
 import { ConcentricMandala } from './src/concentricMandala.js';
+import { RadialDartboard } from './src/radialDartboard.js';
 import { FormulaTrainer, FORMULAS } from './src/trainer.js';
 import { sound } from './src/sound.js';
 
@@ -24,6 +25,11 @@ class App {
   initElements() {
     this.canvasContainer = document.getElementById('rubik-canvas');
     this.mandalaContainer = document.getElementById('mandala-container');
+    this.dartboardContainer = document.getElementById('dartboard-container');
+    this.tabMandala = document.getElementById('tab-mandala');
+    this.tabDartboard = document.getElementById('tab-dartboard');
+    this.mandalaHint = document.getElementById('mandala-hint');
+
     this.timerEl = document.getElementById('timer-display');
     this.moveCountEl = document.getElementById('move-count');
     this.scrambleBtn = document.getElementById('btn-scramble');
@@ -42,12 +48,17 @@ class App {
   }
 
   initComponents() {
-    // 1. Bản đồ 3 vòng tròn đồng tâm phẳng hóa
+    // 1. Bản đồ 1: 3 Vòng tròn giao thoa phẳng hóa
     this.mandala = new ConcentricMandala('mandala-container', this.state, (move) => {
       this.executeMove(move);
     });
 
-    // 2. Không gian 3D và 3 Gương phản chiếu (Hỗ trợ click trực tiếp lên khối & gương)
+    // 2. Bản đồ 2: Bia bắn Tròn Hướng Tâm (Radial Dartboard)
+    this.dartboard = new RadialDartboard('dartboard-container', this.state, (move) => {
+      this.executeMove(move);
+    });
+
+    // 3. Không gian 3D và 3 Gương phản chiếu (Hỗ trợ click trực tiếp lên khối & gương)
     this.rubik3D = new Rubik3D(
       this.canvasContainer,
       this.state,
@@ -55,7 +66,7 @@ class App {
       (directMove) => this.executeMove(directMove)
     );
 
-    // 3. Hệ thống gợi ý & học công thức
+    // 4. Hệ thống gợi ý & học công thức
     this.trainer = new FormulaTrainer(this.rubik3D, this.mandala, (formula, stepIdx) => {
       this.updateFormulaUI(formula, stepIdx);
     });
@@ -119,6 +130,31 @@ class App {
       this.trainer.resetProgress();
       this.btnPlayDemo.textContent = '▶ Chạy Mẫu';
     });
+    // Sự kiện chuyển đổi giữa 2 mô hình phẳng 2D: 3 Vòng Tròn vs Hướng Tâm
+    if (this.tabMandala && this.tabDartboard) {
+      this.tabMandala.addEventListener('click', () => {
+        this.tabMandala.classList.add('active');
+        this.tabDartboard.classList.remove('active');
+        this.mandalaContainer.style.display = 'flex';
+        this.dartboardContainer.style.display = 'none';
+        if (this.mandalaHint) {
+          this.mandalaHint.textContent = '💡 2D: Chạm màu = Thuận, nhãn ngoài = Nghịch';
+        }
+      });
+
+      this.tabDartboard.addEventListener('click', () => {
+        this.tabDartboard.classList.add('active');
+        this.tabMandala.classList.remove('active');
+        this.dartboardContainer.style.display = 'flex';
+        this.mandalaContainer.style.display = 'none';
+        if (this.dartboard) {
+          this.dartboard.update();
+        }
+        if (this.mandalaHint) {
+          this.mandalaHint.textContent = '💡 Chạm tâm = Thuận | Rìa = Nghịch | Đáy D: chạm ngoài = Thuận';
+        }
+      });
+    }
   }
 
   setupKeybindings() {
@@ -173,6 +209,9 @@ class App {
 
   updateAllViews() {
     this.mandala.update();
+    if (this.dartboard) {
+      this.dartboard.update();
+    }
     this.rubik3D.updateMirrors();
   }
 
