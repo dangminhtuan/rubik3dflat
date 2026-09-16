@@ -3,7 +3,7 @@
 
 export const FACE_COLORS = {
   U: '#FACC15', // Vàng (Top)
-  D: '#EF4444', // Đỏ (Bottom)
+  D: '#FFFFFF', // Trắng (Bottom)
   F: '#06B6D4', // Cyan (Front-Left)
   B: '#22C55E', // Xanh Lá (Back-Right)
   L: '#E11D48', // Magenta (Back-Left)
@@ -12,7 +12,7 @@ export const FACE_COLORS = {
 
 export const FACE_NAMES = {
   U: 'Trên (U - Vàng)',
-  D: 'Dưới (D - Đỏ)',
+  D: 'Dưới (D - Trắng)',
   F: 'Trước (F - Cyan)',
   B: 'Sau (B - Xanh Lá)',
   L: 'Trái (L - Magenta)',

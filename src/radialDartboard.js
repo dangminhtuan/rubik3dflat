@@ -120,8 +120,8 @@ export class RadialDartboard {
     centerU.setAttribute('cy', cy);
     centerU.setAttribute('r', R0);
     centerU.setAttribute('fill', FACE_COLORS.U || '#FACC15');
-    centerU.setAttribute('stroke', '#ffffff');
-    centerU.setAttribute('stroke-width', '2.5');
+    centerU.setAttribute('stroke', '#090d16');
+    centerU.setAttribute('stroke-width', '2.0');
     centerU.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
     const titleU = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     titleU.textContent = 'Tâm mặt U (Vàng): Chạm để xoay thuận (U)';
@@ -133,18 +133,18 @@ export class RadialDartboard {
     this.mainGroup.appendChild(centerU);
     this.cellElements.U[4] = centerU;
 
-    // 1.2. Vành 8 ô của mặt U bao quanh tâm (1 vành duy nhất)
-    // 8 ô: 4 ô cạnh (Top, Right, Bottom, Left) và 4 ô góc (đường chéo)
-    // Chia 8 cung: mỗi cung 45 độ, bắt đầu từ -22.5 độ (để ô Top nằm cân xứng ở đỉnh)
+    // 1.2. Vành 8 ô của mặt U (Đồng quy 100% với các nan của 4 mặt bên và các đường chéo)
+    // 4 cạnh: rộng 30 độ (khớp với nan giữa của 4 mặt bên)
+    // 4 góc: rộng 60 độ (khớp với đường chéo 45 độ chia 2 nửa)
     const uSectors = [
-      { idx: 1, start: -22.5, end: 22.5, name: 'Cạnh Trên (U1)' },       // Top (hướng B)
-      { idx: 2, start: 22.5, end: 67.5, name: 'Góc Trên-Phải (U2)' },    // Top-Right
-      { idx: 5, start: 67.5, end: 112.5, name: 'Cạnh Phải (U5)' },      // Right (hướng R)
-      { idx: 8, start: 112.5, end: 157.5, name: 'Góc Dưới-Phải (U8)' },  // Bottom-Right
-      { idx: 7, start: 157.5, end: 202.5, name: 'Cạnh Dưới (U7)' },     // Bottom (hướng F)
-      { idx: 6, start: 202.5, end: 247.5, name: 'Góc Dưới-Trái (U6)' },  // Bottom-Left
-      { idx: 3, start: 247.5, end: 292.5, name: 'Cạnh Trái (U3)' },      // Left (hướng L)
-      { idx: 0, start: 292.5, end: 337.5, name: 'Góc Trên-Trái (U0)' },   // Top-Left
+      { idx: 1, start: -15, end: 15, name: 'Cạnh Trên (U1 giáp B)' },
+      { idx: 2, start: 15, end: 75, name: 'Góc Trên-Phải (U2)' },
+      { idx: 5, start: 75, end: 105, name: 'Cạnh Phải (U5 giáp R)' },
+      { idx: 8, start: 105, end: 165, name: 'Góc Dưới-Phải (U8)' },
+      { idx: 7, start: 165, end: 195, name: 'Cạnh Dưới (U7 giáp F)' },
+      { idx: 6, start: 195, end: 255, name: 'Góc Dưới-Trái (U6)' },
+      { idx: 3, start: 255, end: 285, name: 'Cạnh Trái (U3 giáp L)' },
+      { idx: 0, start: 285, end: 345, name: 'Góc Trên-Trái (U0)' },
     ];
 
     uSectors.forEach(sec => {
@@ -153,7 +153,7 @@ export class RadialDartboard {
       path.setAttribute('d', d);
       path.setAttribute('fill', FACE_COLORS.U || '#FACC15');
       path.setAttribute('stroke', '#090d16');
-      path.setAttribute('stroke-width', '1.8');
+      path.setAttribute('stroke-width', '1.5');
       path.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
       title.textContent = `Mặt U (${sec.name}): Chạm ô rìa để xoay nghịch (U')`;
@@ -167,52 +167,17 @@ export class RadialDartboard {
     });
 
     // 2. TẠO 4 MẶT BÊN (B, R, F, L)
-    // Mỗi mặt gồm 3 tầng (R1->R2, R2->R3, R3->R4) và 3 nan (mỗi nan 30 độ)
+    // 4 góc phần tư: B (-45°..45°), R (45°..135°), F (135°..225°), L (225°..315°)
+    // Mỗi mặt gồm 3 tầng bán kính x 3 nan (mỗi nan 30° thẳng tắp)
+    // Ma trận sticker chuẩn topo học 3D (xoay chiều kim đồng hồ quanh hình tròn):
+    // Tầng 1 (trong, gần U): [2, 1, 0]
+    // Tầng 2 (giữa, chứa tâm 4): [5, 4, 3]
+    // Tầng 3 (ngoài, gần D): [8, 7, 6]
     const sideFaces = [
-      {
-        faceKey: 'B',
-        label: 'Sau (B)',
-        startDeg: -45, // Từ 315° (-45°) đến 45°
-        // Ma trận 3x3:
-        // Tầng trong (R1->R2): index 2 (trái/L), 1 (giữa), 0 (phải/R)
-        // Tầng giữa (R2->R3):  index 5, 4 (tâm), 3
-        // Tầng ngoài (R3->R4): index 8, 7, 6
-        gridMap: [
-          [2, 1, 0],
-          [5, 4, 3],
-          [8, 7, 6]
-        ]
-      },
-      {
-        faceKey: 'R',
-        label: 'Phải (R)',
-        startDeg: 45, // Từ 45° đến 135°
-        gridMap: [
-          [0, 1, 2],
-          [3, 4, 5],
-          [6, 7, 8]
-        ]
-      },
-      {
-        faceKey: 'F',
-        label: 'Trước (F)',
-        startDeg: 135, // Từ 135° đến 225°
-        gridMap: [
-          [0, 1, 2],
-          [3, 4, 5],
-          [6, 7, 8]
-        ]
-      },
-      {
-        faceKey: 'L',
-        label: 'Trái (L)',
-        startDeg: 225, // Từ 225° đến 315°
-        gridMap: [
-          [0, 1, 2],
-          [3, 4, 5],
-          [6, 7, 8]
-        ]
-      }
+      { faceKey: 'B', label: 'Sau (B)', startDeg: -45 },
+      { faceKey: 'R', label: 'Phải (R)', startDeg: 45 },
+      { faceKey: 'F', label: 'Trước (F)', startDeg: 135 },
+      { faceKey: 'L', label: 'Trái (L)', startDeg: 225 },
     ];
 
     const ringRanges = [
@@ -221,20 +186,26 @@ export class RadialDartboard {
       { rIn: R3, rOut: R4 }, // Tầng 3 (ngoài)
     ];
 
+    const standardGrid = [
+      [2, 1, 0],
+      [5, 4, 3],
+      [8, 7, 6]
+    ];
+
     sideFaces.forEach(sf => {
       ringRanges.forEach((ring, rIdx) => {
         for (let col = 0; col < 3; col++) {
           const sliceStart = sf.startDeg + col * 30;
           const sliceEnd = sliceStart + 30;
-          const stickerIdx = sf.gridMap[rIdx][col];
+          const stickerIdx = standardGrid[rIdx][col];
           const isCenter = stickerIdx === 4;
 
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           const d = this.createSectorPath(cx, cy, ring.rIn, ring.rOut, sliceStart, sliceEnd);
           path.setAttribute('d', d);
           path.setAttribute('fill', FACE_COLORS[sf.faceKey] || '#38bdf8');
-          path.setAttribute('stroke', isCenter ? '#ffffff' : '#090d16');
-          path.setAttribute('stroke-width', isCenter ? '2.2' : '1.5');
+          path.setAttribute('stroke', '#090d16');
+          path.setAttribute('stroke-width', '1.5');
           path.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
 
           const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -252,30 +223,49 @@ export class RadialDartboard {
 
           this.mainGroup.appendChild(path);
           this.cellElements[sf.faceKey][stickerIdx] = path;
+
+          // Nếu là ô tâm (isCenter), thêm biểu tượng bullseye mini tinh tế bên trong để nhận diện trực quan mà KHÔNG làm vỡ nét viền
+          if (isCenter) {
+            const midAngleRad = (sf.startDeg + 45 - 90) * (Math.PI / 180);
+            const midR = (ring.rIn + ring.rOut) / 2;
+            const markerX = cx + midR * Math.cos(midAngleRad);
+            const markerY = cy + midR * Math.sin(midAngleRad);
+
+            const bullseye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bullseye.setAttribute('cx', markerX.toFixed(2));
+            bullseye.setAttribute('cy', markerY.toFixed(2));
+            bullseye.setAttribute('r', '5.5');
+            bullseye.setAttribute('fill', 'none');
+            bullseye.setAttribute('stroke', '#ffffff');
+            bullseye.setAttribute('stroke-width', '1.8');
+            bullseye.setAttribute('opacity', '0.9');
+            bullseye.setAttribute('class', 'pointer-events-none');
+            this.mainGroup.appendChild(bullseye);
+          }
         }
       });
     });
 
-    // 3. TẠO MẶT ĐÁY D (VÀNH NGOÀI CÙNG R4 -> R5)
-    // Gồm 8 ô tiếp giáp: 4 ô cạnh và 4 ô góc
+    // 3. TẠO MẶT ĐÁY D (VÀNH NGOÀI CÙNG R4 -> R5 - MÀU TRẮNG)
+    // 8 ô tiếp giáp: 4 ô cạnh (rộng 30°) và 4 ô góc (rộng 60°) thẳng tắp với các tia hướng tâm
     const dSectors = [
-      { idx: 7, start: -22.5, end: 22.5, name: 'Cạnh Trên (D7 giáp B)' },
-      { idx: 8, start: 22.5, end: 67.5, name: 'Góc Trên-Phải (D8)' },
-      { idx: 5, start: 67.5, end: 112.5, name: 'Cạnh Phải (D5 giáp R)' },
-      { idx: 2, start: 112.5, end: 157.5, name: 'Góc Dưới-Phải (D2)' },
-      { idx: 1, start: 157.5, end: 202.5, name: 'Cạnh Dưới (D1 giáp F)' },
-      { idx: 0, start: 202.5, end: 247.5, name: 'Góc Dưới-Trái (D0)' },
-      { idx: 3, start: 247.5, end: 292.5, name: 'Cạnh Trái (D3 giáp L)' },
-      { idx: 6, start: 292.5, end: 337.5, name: 'Góc Trên-Trái (D6)' },
+      { idx: 7, start: -15, end: 15, name: 'Cạnh Trên (D7 giáp B)' },
+      { idx: 8, start: 15, end: 75, name: 'Góc Trên-Phải (D8)' },
+      { idx: 5, start: 75, end: 105, name: 'Cạnh Phải (D5 giáp R)' },
+      { idx: 2, start: 105, end: 165, name: 'Góc Dưới-Phải (D2)' },
+      { idx: 1, start: 165, end: 195, name: 'Cạnh Dưới (D1 giáp F)' },
+      { idx: 0, start: 195, end: 255, name: 'Góc Dưới-Trái (D0)' },
+      { idx: 3, start: 255, end: 285, name: 'Cạnh Trái (D3 giáp L)' },
+      { idx: 6, start: 285, end: 345, name: 'Góc Trên-Trái (D6)' },
     ];
 
     dSectors.forEach(sec => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       const d = this.createSectorPath(cx, cy, R4, R5, sec.start, sec.end);
       path.setAttribute('d', d);
-      path.setAttribute('fill', FACE_COLORS.D || '#EF4444');
+      path.setAttribute('fill', FACE_COLORS.D || '#FFFFFF');
       path.setAttribute('stroke', '#090d16');
-      path.setAttribute('stroke-width', '1.8');
+      path.setAttribute('stroke-width', '1.5');
       path.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
 
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -291,47 +281,53 @@ export class RadialDartboard {
       this.cellElements.D[sec.idx] = path;
     });
 
-    // 4. Các đường viền nan chính nổi bật
-    const bordersGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    bordersGroup.setAttribute('class', 'pointer-events-none');
-    
-    // 4 đường chéo phân định 4 mặt bên
+    // 4. CÁC ĐƯỜNG NAN THẲNG TẮP ĐỒNG QUY TỪ TÂM RA NGOÀI (POINTER-EVENTS-NONE)
+    const overlayGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    overlayGroup.setAttribute('class', 'pointer-events-none');
+
+    // 4.1. 4 đường chéo chính phân định 4 góc phần tư (-45°, 45°, 135°, 225°)
+    // Chạy thẳng tắp từ R0 ra tận R5
     [-45, 45, 135, 225].forEach(deg => {
       const rad = (deg - 90) * (Math.PI / 180);
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', (cx + R1 * Math.cos(rad)).toFixed(2));
-      line.setAttribute('y1', (cy + R1 * Math.sin(rad)).toFixed(2));
+      line.setAttribute('x1', (cx + R0 * Math.cos(rad)).toFixed(2));
+      line.setAttribute('y1', (cy + R0 * Math.sin(rad)).toFixed(2));
       line.setAttribute('x2', (cx + R5 * Math.cos(rad)).toFixed(2));
       line.setAttribute('y2', (cy + R5 * Math.sin(rad)).toFixed(2));
       line.setAttribute('stroke', '#ffffff');
-      line.setAttribute('stroke-width', '2.0');
-      line.setAttribute('opacity', '0.7');
-      bordersGroup.appendChild(line);
+      line.setAttribute('stroke-width', '2.2');
+      line.setAttribute('opacity', '0.75');
+      overlayGroup.appendChild(line);
     });
 
-    // Vòng tròn phân ranh giới U và các mặt bên
-    const boundaryCircle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    boundaryCircle1.setAttribute('cx', cx);
-    boundaryCircle1.setAttribute('cy', cy);
-    boundaryCircle1.setAttribute('r', R1);
-    boundaryCircle1.setAttribute('fill', 'none');
-    boundaryCircle1.setAttribute('stroke', '#ffffff');
-    boundaryCircle1.setAttribute('stroke-width', '2.2');
-    boundaryCircle1.setAttribute('opacity', '0.8');
-    bordersGroup.appendChild(boundaryCircle1);
+    // 4.2. 8 tia nan quạt phân chia 3 cột của 4 mặt bên
+    // Chạy thẳng tắp từ R0 ra tận R5
+    [-15, 15, 75, 105, 165, 195, 255, 285].forEach(deg => {
+      const rad = (deg - 90) * (Math.PI / 180);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', (cx + R0 * Math.cos(rad)).toFixed(2));
+      line.setAttribute('y1', (cy + R0 * Math.sin(rad)).toFixed(2));
+      line.setAttribute('x2', (cx + R5 * Math.cos(rad)).toFixed(2));
+      line.setAttribute('y2', (cy + R5 * Math.sin(rad)).toFixed(2));
+      line.setAttribute('stroke', '#090d16');
+      line.setAttribute('stroke-width', '1.6');
+      overlayGroup.appendChild(line);
+    });
 
-    // Vòng tròn phân ranh giới 4 mặt bên và mặt Đáy D
-    const boundaryCircle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    boundaryCircle2.setAttribute('cx', cx);
-    boundaryCircle2.setAttribute('cy', cy);
-    boundaryCircle2.setAttribute('r', R4);
-    boundaryCircle2.setAttribute('fill', 'none');
-    boundaryCircle2.setAttribute('stroke', '#ffffff');
-    boundaryCircle2.setAttribute('stroke-width', '2.2');
-    boundaryCircle2.setAttribute('opacity', '0.8');
-    bordersGroup.appendChild(boundaryCircle2);
+    // 4.3. Các vòng tròn phân tầng đồng tâm hoàn hảo (R0, R1, R4, R5)
+    [R0, R1, R4, R5].forEach((r, idx) => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', cx);
+      circle.setAttribute('cy', cy);
+      circle.setAttribute('r', r);
+      circle.setAttribute('fill', 'none');
+      circle.setAttribute('stroke', idx === 1 || idx === 2 ? '#ffffff' : '#090d16');
+      circle.setAttribute('stroke-width', idx === 1 || idx === 2 ? '2.2' : '1.6');
+      circle.setAttribute('opacity', idx === 1 || idx === 2 ? '0.75' : '1.0');
+      overlayGroup.appendChild(circle);
+    });
 
-    this.mainGroup.appendChild(bordersGroup);
+    this.mainGroup.appendChild(overlayGroup);
   }
 
   // Cập nhật màu 54 ô sticker đồng bộ thời gian thực

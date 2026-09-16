@@ -193,13 +193,13 @@ export class Rubik3D {
       0xe11d48
     );
 
-    // 3. Gương Mặt Dưới (D - Đỏ): Đặt lùi ra xa tại Y = -4.8, hơi ngửa lên để nhìn rõ cả 9 ô
+    // 3. Gương Mặt Dưới (D - Trắng): Đặt lùi ra xa tại Y = -4.8, hơi ngửa lên để nhìn rõ cả 9 ô
     createMirrorPanel(
       'Mặt Đáy (D)',
       { x: 0.2, y: -4.8, z: 0.2 },
       { x: -Math.PI / 2 + 0.06, y: 0, z: 0 },
       'D',
-      0xef4444
+      0xffffff
     );
   }
 
