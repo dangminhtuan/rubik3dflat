@@ -112,6 +112,9 @@ body {
   border: 1px solid var(--border-subtle);
   background: rgba(30, 41, 59, 0.6);
   color: #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .btn-header:hover {
@@ -123,6 +126,126 @@ body {
   background: linear-gradient(135deg, #d97706, #b45309);
   color: #ffffff;
   border: 1px solid #f59e0b;
+}
+
+/* Menu Con Mắt & Tùy chọn hiển thị */
+.display-menu-container {
+  position: relative;
+}
+
+.display-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 275px;
+  background: rgba(14, 20, 34, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 15px rgba(6, 182, 212, 0.25);
+  z-index: 100;
+  padding: 10px;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 0.5px;
+}
+
+.btn-close-popover {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btn-close-popover:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popover-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 5px;
+  transition: background 0.12s ease;
+}
+
+.popover-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.popover-option input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--accent-cyan);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.option-desc {
+  font-size: 9px;
+  color: #64748b;
+  line-height: 1.25;
+}
+
+/* Các trạng thái ẩn hiện tùy biến */
+body.icon-only-mode .btn-lbl,
+body.icon-only-mode .hint-text {
+  display: none !important;
+}
+
+body.icon-only-mode .btn-action,
+body.icon-only-mode .tab-btn,
+body.icon-only-mode .btn-header {
+  padding: 4px 7px;
+}
+
+.stats-bar.hidden-stats {
+  display: none !important;
+}
+
+.quick-move-bar.hidden-move-bar {
+  display: none !important;
 }
 
 /* Bố cục chính 2 Khối */
@@ -205,7 +328,7 @@ body {
   color: var(--accent-cyan);
 }
 
-/* Thanh nút bấm xoay nhanh */
+/* Thanh điều khiển trung tâm */
 .controls-bar {
   height: 44px;
   min-height: 44px;
@@ -214,9 +337,47 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   padding: 0 8px;
   z-index: 10;
+  overflow-x: auto;
+}
+
+.reset-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.btn-reset-special {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-reset-special:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.quick-move-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .move-group {
@@ -480,9 +641,42 @@ body {
 }
 
 /* =======================================================
-   RESPONSIVE CHO ĐIỆN THOẠI (Mobile View: Hiển thị cả 2 hình)
+   RESPONSIVE CHO ĐIỆN THOẠI (Mobile View: Tối ưu Zero-Scroll)
    ======================================================= */
 @media (max-width: 840px) {
+  .app-header {
+    padding: 0 6px;
+    gap: 4px;
+  }
+
+  .logo-text {
+    font-size: 12.5px;
+  }
+
+  .stats-bar {
+    gap: 3px;
+  }
+
+  .stat-item {
+    padding: 2px 5px;
+    font-size: 10px;
+    gap: 2px;
+  }
+
+  .stat-label {
+    font-size: 8.5px;
+  }
+
+  .btn-header {
+    padding: 3px 6px;
+    font-size: 10.5px;
+  }
+
+  .display-popover {
+    right: -20px;
+    width: min(280px, 92vw);
+  }
+
   .main-layout {
     display: flex;
     flex-direction: column;
@@ -498,43 +692,79 @@ body {
     border-bottom: 1px solid var(--border-subtle);
   }
 
+  .overlay-mirrors-chip {
+    display: none; /* Ẩn chip text trên mobile để mở rộng không gian 3D */
+  }
+
   .controls-bar {
     height: 38px;
     min-height: 38px;
     gap: 4px;
     padding: 0 4px;
+    justify-content: space-between;
   }
 
-  .btn-move {
-    width: 25px;
-    height: 25px;
+  .btn-reset-special {
+    padding: 3px 6px;
     font-size: 10px;
   }
 
-  /* Nửa dưới: Mandala 3 Vòng Tròn */
+  .btn-move {
+    width: 24px;
+    height: 24px;
+    font-size: 9.5px;
+  }
+
+  /* Nửa dưới: Mandala & Bia Bắn 2D */
   .right-panel {
     flex: 1;
     min-height: 0;
   }
 
   .mandala-section {
-    padding: 2px 6px;
+    padding: 2px 4px;
+  }
+
+  .mandala-hint .hint-text {
+    display: none; /* Rút gọn dòng gợi ý dài trên mobile */
   }
 
   .trainer-bar {
     height: 38px;
     min-height: 38px;
-    padding: 0 6px;
-    gap: 5px;
+    padding: 0 4px;
+    gap: 4px;
+  }
+
+  .coach-panel-content {
+    gap: 4px;
+  }
+
+  .coach-stage-badge {
+    padding: 2px 5px;
+    font-size: 9.5px;
+  }
+
+  .coach-info-wrapper {
+    min-width: 50px;
+    max-width: 100px;
+  }
+
+  .coach-case-name {
+    font-size: 9.5px;
+  }
+
+  .coach-hint-text {
+    display: none; /* Ẩn text gợi ý dài để nhường toàn bộ chỗ cho các nút hành động */
   }
 
   .formula-select {
-    max-width: 120px;
-    font-size: 10px;
+    max-width: 110px;
+    font-size: 9.5px;
   }
 
   .btn-action {
-    padding: 3px 7px;
-    font-size: 10px;
+    padding: 3px 6px;
+    font-size: 9.5px;
   }
 }

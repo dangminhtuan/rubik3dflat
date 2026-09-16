@@ -34,10 +34,30 @@ class App {
     this.timerEl = document.getElementById('timer-display');
     this.moveCountEl = document.getElementById('move-count');
     this.scrambleBtn = document.getElementById('btn-scramble');
-    this.resetBtn = document.getElementById('btn-reset');
-    this.centerCamBtn = document.getElementById('btn-center-cam');
-    this.soundToggleBtn = document.getElementById('btn-sound-toggle');
     this.statusBadge = document.getElementById('status-badge');
+
+    // 2 Nút Reset ở hàng giữa
+    this.btnResetView = document.getElementById('btn-reset-view');
+    this.btnResetRubik = document.getElementById('btn-reset-rubik');
+
+    // Nút Con Mắt & Menu Tùy chọn hiển thị
+    this.btnDisplayToggle = document.getElementById('btn-display-toggle');
+    this.displayPopover = document.getElementById('display-popover');
+    this.btnClosePopover = document.getElementById('btn-close-popover');
+    this.chkLabels = document.getElementById('chk-labels');
+    this.chkStats = document.getElementById('chk-stats');
+    this.chkMoveBar = document.getElementById('chk-move-bar');
+    this.chkSound = document.getElementById('chk-sound');
+    this.statsBar = document.getElementById('stats-bar');
+    this.quickMoveBar = document.getElementById('quick-move-bar');
+
+    // Tải cấu hình hiển thị từ localStorage
+    this.prefs = {
+      labels: localStorage.getItem('rubik_pref_labels') !== 'false',
+      stats: localStorage.getItem('rubik_pref_stats') !== 'false',
+      moveBar: localStorage.getItem('rubik_pref_moveBar') !== 'false',
+      sound: localStorage.getItem('rubik_pref_sound') !== 'false',
+    };
 
     // Controls học công thức
     this.formulaSelect = document.getElementById('formula-select');
@@ -71,6 +91,37 @@ class App {
     this.lastCoachStage = 0;
   }
 
+  applyPreferences() {
+    // 1. Nhãn chữ
+    if (this.prefs.labels) {
+      document.body.classList.remove('icon-only-mode');
+    } else {
+      document.body.classList.add('icon-only-mode');
+    }
+    if (this.chkLabels) this.chkLabels.checked = this.prefs.labels;
+
+    // 2. Bộ đếm game
+    if (this.statsBar) {
+      this.statsBar.classList.toggle('hidden-stats', !this.prefs.stats);
+    }
+    if (this.chkStats) this.chkStats.checked = this.prefs.stats;
+
+    // 3. Thanh 12 phím xoay
+    if (this.quickMoveBar) {
+      this.quickMoveBar.classList.toggle('hidden-move-bar', !this.prefs.moveBar);
+    }
+    if (this.chkMoveBar) this.chkMoveBar.checked = this.prefs.moveBar;
+
+    // 4. Âm thanh
+    sound.enabled = this.prefs.sound;
+    if (this.chkSound) this.chkSound.checked = this.prefs.sound;
+
+    localStorage.setItem('rubik_pref_labels', this.prefs.labels);
+    localStorage.setItem('rubik_pref_stats', this.prefs.stats);
+    localStorage.setItem('rubik_pref_moveBar', this.prefs.moveBar);
+    localStorage.setItem('rubik_pref_sound', this.prefs.sound);
+  }
+
   initComponents() {
     // 1. Bản đồ 1: 3 Vòng tròn giao thoa phẳng hóa
     this.mandala = new ConcentricMandala('mandala-container', this.state, (move) => {
@@ -98,27 +149,67 @@ class App {
     this.populateFormulaList();
     this.updateAllViews();
     this.updateCoachUI();
+    this.applyPreferences();
   }
 
   setupEvents() {
     if (this.scrambleBtn) {
       this.scrambleBtn.addEventListener('click', () => this.scramble());
     }
-    if (this.resetBtn) {
-      this.resetBtn.addEventListener('click', () => this.resetGame());
+
+    // 2 Nút Reset ở trung tâm
+    if (this.btnResetView) {
+      this.btnResetView.addEventListener('click', () => this.rubik3D.resetCamera());
     }
-    if (this.centerCamBtn) {
-      this.centerCamBtn.addEventListener('click', () => this.rubik3D.resetCamera());
+    if (this.btnResetRubik) {
+      this.btnResetRubik.addEventListener('click', () => this.resetGame());
     }
 
-    if (this.soundToggleBtn) {
-      let soundOn = true;
-      this.soundToggleBtn.addEventListener('click', () => {
-        soundOn = !soundOn;
-        sound.enabled = soundOn;
-        this.soundToggleBtn.innerHTML = soundOn ? '🔊 Âm: BẬT' : '🔇 Âm: TẮT';
-        this.soundToggleBtn.classList.toggle('text-emerald-400', soundOn);
-        this.soundToggleBtn.classList.toggle('text-slate-400', !soundOn);
+    // Menu Con Mắt & Tùy chọn giao diện
+    if (this.btnDisplayToggle && this.displayPopover) {
+      this.btnDisplayToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = this.displayPopover.style.display === 'none';
+        this.displayPopover.style.display = isHidden ? 'block' : 'none';
+      });
+
+      if (this.btnClosePopover) {
+        this.btnClosePopover.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.displayPopover.style.display = 'none';
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        if (!this.displayPopover.contains(e.target) && e.target !== this.btnDisplayToggle && !this.btnDisplayToggle.contains(e.target)) {
+          this.displayPopover.style.display = 'none';
+        }
+      });
+    }
+
+    // Checkbox Tùy chọn giao diện
+    if (this.chkLabels) {
+      this.chkLabels.addEventListener('change', (e) => {
+        this.prefs.labels = e.target.checked;
+        this.applyPreferences();
+      });
+    }
+    if (this.chkStats) {
+      this.chkStats.addEventListener('change', (e) => {
+        this.prefs.stats = e.target.checked;
+        this.applyPreferences();
+      });
+    }
+    if (this.chkMoveBar) {
+      this.chkMoveBar.addEventListener('change', (e) => {
+        this.prefs.moveBar = e.target.checked;
+        this.applyPreferences();
+      });
+    }
+    if (this.chkSound) {
+      this.chkSound.addEventListener('change', (e) => {
+        this.prefs.sound = e.target.checked;
+        this.applyPreferences();
       });
     }
 

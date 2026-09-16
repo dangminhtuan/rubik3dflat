@@ -14,18 +14,55 @@
       <span id="status-badge" class="badge-tag">NGUYÊN BẢN</span>
     </div>
 
-    <!-- Bộ đếm gọn nhẹ -->
-    <div class="stats-bar">
+    <!-- Bộ đếm Bước & Thời gian (Toggleable hiển thị) -->
+    <div id="stats-bar" class="stats-bar">
       <div class="stat-item"><span class="stat-label">BƯỚC:</span> <span id="move-count" class="stat-val">0</span></div>
       <div class="stat-item"><span class="stat-label">GIỜ:</span> <span id="timer-display" class="stat-val">00:00.00</span></div>
     </div>
 
-    <!-- Nút hành động nhanh -->
+    <!-- Nút hành động nhanh: Menu Con Mắt & Xáo Trộn -->
     <div class="header-actions">
-      <button id="btn-sound-toggle" class="btn-header" title="Bật/Tắt âm thanh">🔊</button>
-      <button id="btn-center-cam" class="btn-header" title="Góc nhìn isometric chuẩn">🎯</button>
-      <button id="btn-reset" class="btn-header" title="Làm lại từ đầu">↺</button>
-      <button id="btn-scramble" class="btn-header btn-scramble">⚡ Xáo Trộn</button>
+      <div class="display-menu-container">
+        <button id="btn-display-toggle" class="btn-header" title="Tùy chọn hiển thị & ẩn hiện tính năng">👁️ <span class="btn-lbl">HIỂN THỊ</span></button>
+        <!-- Popover Tùy chọn giao diện -->
+        <div id="display-popover" class="display-popover" style="display: none;">
+          <div class="popover-header">
+            <span>👁️ TÙY CHỌN HIỂN THỊ</span>
+            <button id="btn-close-popover" class="btn-close-popover" title="Đóng">✕</button>
+          </div>
+          <div class="popover-body">
+            <label class="popover-option">
+              <input type="checkbox" id="chk-labels" checked>
+              <div class="option-info">
+                <span class="option-title">🏷️ Nhãn chữ nút bấm</span>
+                <span class="option-desc">Bật: Icon + Chữ | Tắt: Chỉ giữ Icon (Pro Mode)</span>
+              </div>
+            </label>
+            <label class="popover-option">
+              <input type="checkbox" id="chk-stats" checked>
+              <div class="option-info">
+                <span class="option-title">⏱️ Bộ đếm Bước & Thời gian</span>
+                <span class="option-desc">Hiện thông số chơi game</span>
+              </div>
+            </label>
+            <label class="popover-option">
+              <input type="checkbox" id="chk-move-bar" checked>
+              <div class="option-info">
+                <span class="option-title">⌨️ Thanh 12 phím xoay</span>
+                <span class="option-desc">Dải nút U, U', D, D', L, L'...</span>
+              </div>
+            </label>
+            <label class="popover-option">
+              <input type="checkbox" id="chk-sound" checked>
+              <div class="option-info">
+                <span class="option-title">🔊 Âm thanh click</span>
+                <span class="option-desc">Âm thanh click khi xoay khối</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <button id="btn-scramble" class="btn-header btn-scramble">⚡ <span class="btn-lbl">Xáo Trộn</span></button>
     </div>
   </header>
 
@@ -47,31 +84,40 @@
       <!-- Canvas 3D Three.js -->
       <div id="rubik-canvas" class="canvas-wrapper"></div>
 
-      <!-- Thanh nút bấm xoay nhanh các tầng -->
-      <div class="controls-bar">
-        <div class="move-group">
-          <button class="btn-move" data-move="U">U</button>
-          <button class="btn-move" data-move="U'">U'</button>
+      <!-- Thanh điều khiển trung tâm: Reset View & Reset Rubik + Thanh 12 phím xoay -->
+      <div class="controls-bar" id="controls-bar">
+        <!-- 2 Nút Reset đặt cạnh nhau ở giữa -->
+        <div class="reset-actions-group">
+          <button id="btn-reset-view" class="btn-action btn-reset-special" title="Đặt lại góc nhìn 3D chuẩn">🎯 <span class="btn-lbl">RESET VIEW</span></button>
+          <button id="btn-reset-rubik" class="btn-action btn-reset-special" title="Khôi phục Rubik về nguyên bản 6 mặt">🎲 <span class="btn-lbl">RESET RUBIK</span></button>
         </div>
-        <div class="move-group">
-          <button class="btn-move" data-move="D">D</button>
-          <button class="btn-move" data-move="D'">D'</button>
-        </div>
-        <div class="move-group">
-          <button class="btn-move" data-move="L">L</button>
-          <button class="btn-move" data-move="L'">L'</button>
-        </div>
-        <div class="move-group">
-          <button class="btn-move" data-move="R">R</button>
-          <button class="btn-move" data-move="R'">R'</button>
-        </div>
-        <div class="move-group">
-          <button class="btn-move" data-move="F">F</button>
-          <button class="btn-move" data-move="F'">F'</button>
-        </div>
-        <div class="move-group">
-          <button class="btn-move" data-move="B">B</button>
-          <button class="btn-move" data-move="B'">B'</button>
+
+        <!-- Dải 12 phím xoay (có thể ẩn/hiện) -->
+        <div id="quick-move-bar" class="quick-move-bar">
+          <div class="move-group">
+            <button class="btn-move" data-move="U">U</button>
+            <button class="btn-move" data-move="U'">U'</button>
+          </div>
+          <div class="move-group">
+            <button class="btn-move" data-move="D">D</button>
+            <button class="btn-move" data-move="D'">D'</button>
+          </div>
+          <div class="move-group">
+            <button class="btn-move" data-move="L">L</button>
+            <button class="btn-move" data-move="L'">L'</button>
+          </div>
+          <div class="move-group">
+            <button class="btn-move" data-move="R">R</button>
+            <button class="btn-move" data-move="R'">R'</button>
+          </div>
+          <div class="move-group">
+            <button class="btn-move" data-move="F">F</button>
+            <button class="btn-move" data-move="F'">F'</button>
+          </div>
+          <div class="move-group">
+            <button class="btn-move" data-move="B">B</button>
+            <button class="btn-move" data-move="B'">B'</button>
+          </div>
         </div>
       </div>
     </section>
@@ -82,10 +128,10 @@
       <div class="mandala-section">
         <div class="section-header">
           <div class="view-mode-tabs">
-            <button id="tab-mandala" class="tab-btn active" title="Bản đồ 3 Vòng Tròn Giao Điểm">🪐 3 VÒNG TRÒN</button>
-            <button id="tab-dartboard" class="tab-btn" title="Bản đồ Tròn Hướng Tâm (Bia Bắn 54 Ô)">🎯 HƯỚNG TÂM</button>
+            <button id="tab-mandala" class="tab-btn active" title="Bản đồ 3 Vòng Tròn Giao Điểm">🪐 <span class="btn-lbl">3 VÒNG TRÒN</span></button>
+            <button id="tab-dartboard" class="tab-btn" title="Bản đồ Tròn Hướng Tâm (Bia Bắn 54 Ô)">🎯 <span class="btn-lbl">HƯỚNG TÂM</span></button>
           </div>
-          <span id="mandala-hint" class="mandala-hint">💡 2D: Chạm màu = Thuận, nhãn ngoài = Nghịch</span>
+          <span id="mandala-hint" class="mandala-hint">💡 <span class="hint-text">Chạm tâm: Thuận | Rìa: Nghịch</span></span>
         </div>
         
         <!-- Viewport SVG 1: 3 Vòng tròn giao điểm -->
@@ -99,8 +145,8 @@
       <div class="trainer-bar">
         <!-- Bộ chuyển đổi chế độ đáy: Gia Sư AI vs Công Thức Mẫu -->
         <div class="bottom-mode-tabs">
-          <button id="tab-mode-coach" class="tab-btn active" title="Gia sư dạy xoay 6 mặt LBL 7 bước">🧠 GIA SƯ</button>
-          <button id="tab-mode-formula" class="tab-btn" title="Thư viện công thức mẫu">📚 MẪU</button>
+          <button id="tab-mode-coach" class="tab-btn active" title="Gia sư dạy xoay 6 mặt LBL 7 bước">🧠 <span class="btn-lbl">GIA SƯ</span></button>
+          <button id="tab-mode-formula" class="tab-btn" title="Thư viện công thức mẫu">📚 <span class="btn-lbl">MẪU</span></button>
         </div>
 
         <!-- Khối 1: Gia Sư AI (LBL 7 Bước) -->
@@ -111,9 +157,9 @@
             <span id="coach-hint-text" class="coach-hint-text">Bấm "Xáo Trộn" góc trên để bắt đầu</span>
           </div>
           <div id="coach-steps" class="formula-steps-container"></div>
-          <button id="btn-coach-auto" class="btn-action primary" title="Máy tự động xoay giải toàn bộ về đích 6 mặt">⚡ Tự Giải Hết</button>
-          <button id="btn-coach-step" class="btn-action" title="Máy tự giải 1 bước tiếp theo">▶ Bước Tiếp</button>
-          <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" style="display: none;">↩️ Hoàn Tác</button>
+          <button id="btn-coach-auto" class="btn-action primary" title="Máy tự động xoay giải toàn bộ về đích 6 mặt">⚡ <span class="btn-lbl">Tự Giải Hết</span></button>
+          <button id="btn-coach-step" class="btn-action" title="Máy tự giải 1 bước tiếp theo">▶ <span class="btn-lbl">Bước Tiếp</span></button>
+          <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" style="display: none;">↩️ <span class="btn-lbl">Hoàn Tác</span></button>
         </div>
 
         <!-- Khối 2: Học Công Thức Mẫu (Library) -->
@@ -121,9 +167,9 @@
           <select id="formula-select" class="formula-select" title="Chọn công thức"></select>
           <span id="formula-desc" class="coach-hint-text" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
           <div id="formula-steps" class="formula-steps-container"></div>
-          <button id="btn-step-next" class="btn-action" title="Đi từng bước">⏭</button>
-          <button id="btn-play-demo" class="btn-action primary" title="Chạy mẫu tự động">▶ Chạy</button>
-          <button id="btn-reset-formula" class="btn-action" title="Đặt lại">↺</button>
+          <button id="btn-step-next" class="btn-action" title="Đi từng bước">⏭ <span class="btn-lbl">Bước</span></button>
+          <button id="btn-play-demo" class="btn-action primary" title="Chạy mẫu tự động">▶ <span class="btn-lbl">Chạy</span></button>
+          <button id="btn-reset-formula" class="btn-action" title="Đặt lại">↺ <span class="btn-lbl">Lại</span></button>
         </div>
       </div>
     </section>

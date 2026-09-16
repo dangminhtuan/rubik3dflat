@@ -32,13 +32,13 @@ export class Rubik3D {
 
     // Camera góc nhìn Isometric thoáng: nhìn rõ cả khối 3D và 3 gương phía sau
     const aspect = width / (height || 1);
-    const fov = aspect < 1 ? 54 : 42;
+    const fov = aspect < 1 ? 55 : 42;
     this.camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 100);
     this.defaultCameraPos = aspect < 1 
-      ? new THREE.Vector3(6.6, 5.4, 8.0) 
+      ? new THREE.Vector3(6.8, 5.6, 8.4) 
       : new THREE.Vector3(5.8, 4.8, 7.0);
     this.camera.position.copy(this.defaultCameraPos);
-    this.camera.lookAt(0, 0, 0);
+    this.camera.lookAt(0, aspect < 1 ? -0.35 : 0, 0);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     this.renderer.setSize(width, height);
@@ -437,7 +437,8 @@ export class Rubik3D {
 
   resetCamera() {
     this.camera.position.copy(this.defaultCameraPos);
-    this.camera.lookAt(0, 0, 0);
+    const aspect = this.container.clientWidth / (this.container.clientHeight || 1);
+    this.camera.lookAt(0, aspect < 1 ? -0.35 : 0, 0);
     if (this.spherical) {
       this.spherical.setFromVector3(this.defaultCameraPos);
     }
