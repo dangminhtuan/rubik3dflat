@@ -10,7 +10,7 @@
   <!-- Header gọn gàng tinh giản chữ -->
   <header class="app-header">
     <div class="logo-area">
-      <span class="logo-text">🎲 <span class="btn-lbl">RUBIK 3D</span></span>
+      <span class="logo-text">🧊 <span class="btn-lbl">RUBIK 3D</span></span>
       <span id="status-badge" class="badge-tag">🟢 <span class="btn-lbl">NGUYÊN BẢN</span></span>
     </div>
 
@@ -62,7 +62,7 @@
           </div>
         </div>
       </div>
-      <button id="btn-scramble" class="btn-header btn-scramble">⚡ <span class="btn-lbl">Xáo Trộn</span></button>
+      <button id="btn-scramble" class="btn-header btn-scramble" title="Xáo trộn ngẫu nhiên Rubik">🔀 <span class="btn-lbl">Xáo Trộn</span></button>
     </div>
   </header>
 
@@ -88,8 +88,8 @@
       <div class="controls-bar" id="controls-bar">
         <!-- 2 Nút Reset đặt cạnh nhau ở giữa -->
         <div class="reset-actions-group">
-          <button id="btn-reset-view" class="btn-action btn-reset-special" title="Đặt lại góc nhìn 3D chuẩn">🎯 <span class="btn-lbl">RESET VIEW</span></button>
-          <button id="btn-reset-rubik" class="btn-action btn-reset-special" title="Khôi phục Rubik về nguyên bản 6 mặt">🎲 <span class="btn-lbl">RESET RUBIK</span></button>
+          <button id="btn-reset-view" class="btn-action btn-reset-special" title="Đặt lại góc nhìn 3D chuẩn">🎥 <span class="btn-lbl">RESET VIEW</span></button>
+          <button id="btn-reset-rubik" class="btn-action btn-reset-special" title="Khôi phục Rubik về nguyên bản 6 mặt">🧊 <span class="btn-lbl">RESET RUBIK</span></button>
         </div>
 
         <!-- Dải 12 phím xoay (có thể ẩn/hiện) -->
@@ -151,7 +151,7 @@
 
         <!-- Khối 1: Gia Sư AI (LBL 7 Bước) -->
         <div id="coach-panel" class="coach-panel-content">
-          <span id="coach-stage-badge" class="coach-stage-badge">🎯 <span class="badge-lbl">CÒN </span>0<span class="badge-lbl"> NƯỚC</span></span>
+          <span id="coach-stage-badge" class="coach-stage-badge">🏁 <span class="badge-lbl">CÒN </span>0<span class="badge-lbl"> NƯỚC</span></span>
           <div class="coach-info-wrapper">
             <span id="coach-case-name" class="coach-case-name">Khối Đang Nguyên Bản</span>
             <span id="coach-hint-text" class="coach-hint-text">Bấm "Xáo Trộn" góc trên để bắt đầu</span>
@@ -159,7 +159,7 @@
           <div id="coach-steps" class="formula-steps-container"></div>
           <button id="btn-coach-auto" class="btn-action primary" title="Máy tự động xoay giải toàn bộ về đích 6 mặt">⚡ <span class="btn-lbl">Tự Giải Hết</span></button>
           <button id="btn-coach-step" class="btn-action" title="Máy tự giải 1 bước tiếp theo">▶ <span class="btn-lbl">Bước Tiếp</span></button>
-          <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" style="display: none;">↩️ <span class="btn-lbl">Hoàn Tác</span></button>
+          <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" disabled>↩️ <span class="btn-lbl">Hoàn Tác</span></button>
         </div>
 
         <!-- Khối 2: Học Công Thức Mẫu (Library) -->

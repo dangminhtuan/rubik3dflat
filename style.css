@@ -689,6 +689,7 @@ body.icon-only-mode .coach-stage-badge {
   background: rgba(30, 41, 59, 0.8);
   color: #e2e8f0;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-action:hover {
@@ -700,6 +701,15 @@ body.icon-only-mode .coach-stage-badge {
   background: linear-gradient(135deg, #0284c7, #0369a1);
   color: #ffffff;
   border-color: #38bdf8;
+}
+
+.btn-action:disabled,
+.btn-undo:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  filter: grayscale(0.5);
 }
 
 /* =======================================================

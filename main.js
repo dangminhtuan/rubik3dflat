@@ -81,6 +81,7 @@ class App {
     this.btnCoachAuto = document.getElementById('btn-coach-auto');
     this.btnCoachStep = document.getElementById('btn-coach-step');
     this.btnCoachUndo = document.getElementById('btn-coach-undo');
+    if (this.btnCoachUndo) this.btnCoachUndo.disabled = true;
 
     this.coach = new CoachEngine();
     this.currentCoachMoves = [];
@@ -353,7 +354,7 @@ class App {
     if (!isUndo) {
       this.coachUndoStack.push(move);
       if (this.btnCoachUndo) {
-        this.btnCoachUndo.style.display = 'inline-flex';
+        this.btnCoachUndo.disabled = false;
       }
     }
 
@@ -431,14 +432,14 @@ class App {
     this.coachUndoStack = [];
     this.lastCoachStage = 0;
     if (this.btnCoachUndo) {
-      this.btnCoachUndo.style.display = 'none';
+      this.btnCoachUndo.disabled = true;
     }
     if (this.btnCoachAuto) {
       this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
-    this.statusBadge.innerHTML = '⚡ <span class="btn-lbl">ĐANG GIẢI</span>';
+    this.statusBadge.innerHTML = '⏳ <span class="btn-lbl">ĐANG GIẢI</span>';
     this.statusBadge.className = 'badge-tag badge-warning';
 
     const scrambleMoves = this.state.generateScramble(20);
@@ -461,7 +462,7 @@ class App {
     this.coachUndoStack = [];
     this.lastCoachStage = 0;
     if (this.btnCoachUndo) {
-      this.btnCoachUndo.style.display = 'none';
+      this.btnCoachUndo.disabled = true;
     }
     if (this.btnCoachAuto) {
       this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
@@ -561,7 +562,7 @@ class App {
       this.coachStageBadge.style.color = '#34d399';
       this.coachStageBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
     } else {
-      this.coachStageBadge.innerHTML = `🎯 <span class="badge-lbl">CÒN </span>${analysis.remainingCount}<span class="badge-lbl"> NƯỚC</span>`;
+      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${analysis.remainingCount}<span class="badge-lbl"> NƯỚC</span>`;
       this.coachStageBadge.style.background = 'rgba(56, 189, 248, 0.15)';
       this.coachStageBadge.style.color = '#38bdf8';
       this.coachStageBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
@@ -609,8 +610,8 @@ class App {
       }
     }
 
-    if (this.coachUndoStack.length === 0 && this.btnCoachUndo) {
-      this.btnCoachUndo.style.display = 'none';
+    if (this.btnCoachUndo) {
+      this.btnCoachUndo.disabled = (this.coachUndoStack.length === 0);
     }
   }
 
@@ -670,8 +671,8 @@ class App {
     const inv = lastMove.endsWith('2') ? lastMove : (lastMove.endsWith("'") ? lastMove.slice(0, -1) : lastMove + "'");
 
     this.executeMove(inv, true);
-    if (this.coachUndoStack.length === 0 && this.btnCoachUndo) {
-      this.btnCoachUndo.style.display = 'none';
+    if (this.btnCoachUndo) {
+      this.btnCoachUndo.disabled = (this.coachUndoStack.length === 0);
     }
   }
 }
