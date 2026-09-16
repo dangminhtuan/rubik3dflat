@@ -95,14 +95,36 @@
         <div id="dartboard-container" class="mandala-viewport" style="display: none;"></div>
       </div>
 
-      <!-- Thanh học công thức gọn gàng (Single Row Toolbar) -->
+      <!-- Thanh công cụ học & gia sư gọn gàng (Single Row Toolbar - Zero Scroll) -->
       <div class="trainer-bar">
-        <select id="formula-select" class="formula-select" title="Chọn công thức"></select>
-        <div id="formula-steps" class="formula-steps-container"></div>
-        <button id="btn-step-next" class="btn-action" title="Đi từng bước">⏭</button>
-        <button id="btn-play-demo" class="btn-action primary" title="Chạy mẫu tự động">▶ Chạy</button>
-        <button id="btn-reset-formula" class="btn-action" title="Đặt lại">↺</button>
-        <span id="formula-desc" style="display: none;"></span>
+        <!-- Bộ chuyển đổi chế độ đáy: Gia Sư AI vs Công Thức Mẫu -->
+        <div class="bottom-mode-tabs">
+          <button id="tab-mode-coach" class="tab-btn active" title="Gia sư dạy xoay 6 mặt LBL 7 bước">🧠 GIA SƯ</button>
+          <button id="tab-mode-formula" class="tab-btn" title="Thư viện công thức mẫu">📚 MẪU</button>
+        </div>
+
+        <!-- Khối 1: Gia Sư AI (LBL 7 Bước) -->
+        <div id="coach-panel" class="coach-panel-content">
+          <span id="coach-stage-badge" class="coach-stage-badge">🎯 CÒN 0 NƯỚC</span>
+          <div class="coach-info-wrapper">
+            <span id="coach-case-name" class="coach-case-name">Khối Đang Nguyên Bản</span>
+            <span id="coach-hint-text" class="coach-hint-text">Bấm "Xáo Trộn" góc trên để bắt đầu</span>
+          </div>
+          <div id="coach-steps" class="formula-steps-container"></div>
+          <button id="btn-coach-auto" class="btn-action primary" title="Máy tự động xoay giải toàn bộ về đích 6 mặt">⚡ Tự Giải Hết</button>
+          <button id="btn-coach-step" class="btn-action" title="Máy tự giải 1 bước tiếp theo">▶ Bước Tiếp</button>
+          <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" style="display: none;">↩️ Hoàn Tác</button>
+        </div>
+
+        <!-- Khối 2: Học Công Thức Mẫu (Library) -->
+        <div id="formula-panel" class="formula-panel-content" style="display: none;">
+          <select id="formula-select" class="formula-select" title="Chọn công thức"></select>
+          <span id="formula-desc" class="coach-hint-text" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+          <div id="formula-steps" class="formula-steps-container"></div>
+          <button id="btn-step-next" class="btn-action" title="Đi từng bước">⏭</button>
+          <button id="btn-play-demo" class="btn-action primary" title="Chạy mẫu tự động">▶ Chạy</button>
+          <button id="btn-reset-formula" class="btn-action" title="Đặt lại">↺</button>
+        </div>
       </div>
     </section>
   </main>

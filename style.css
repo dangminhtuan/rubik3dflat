@@ -347,7 +347,7 @@ body {
   object-fit: contain;
 }
 
-/* Thanh Trainer tinh giản 1 dòng duy nhất */
+/* Thanh Trainer & Gia Sư tinh giản 1 dòng duy nhất (Zero Scroll) */
 .trainer-bar {
   height: 44px;
   min-height: 44px;
@@ -358,6 +358,79 @@ body {
   padding: 0 10px;
   gap: 8px;
   z-index: 10;
+  overflow: hidden;
+}
+
+.bottom-mode-tabs {
+  display: flex;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 1.5px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.coach-panel-content,
+.formula-panel-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.coach-stage-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.coach-info-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 140px;
+  max-width: 240px;
+  overflow: hidden;
+  line-height: 1.25;
+}
+
+.coach-case-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coach-hint-text {
+  font-size: 9px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-undo {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.btn-undo:hover {
+  background: rgba(239, 68, 68, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
 }
 
 .formula-select {
