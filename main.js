@@ -78,6 +78,7 @@ class App {
     // Controls Gia Sư AI Coach
     this.coachStageBadge = document.getElementById('coach-stage-badge');
     this.coachCaseName = document.getElementById('coach-case-name');
+    this.coachFormulaBadge = document.getElementById('coach-formula-badge');
     this.coachHintText = document.getElementById('coach-hint-text');
     this.coachSteps = document.getElementById('coach-steps');
     this.btnCoachStep = document.getElementById('btn-coach-step');
@@ -89,7 +90,9 @@ class App {
     this.coach = new CoachEngine();
     this.currentCoachMoves = [];
     this.coachUndoStack = [];
+    this.currentCoachFormulaId = null;
     this.isAutoSolving = false;
+    this.isStageSolving = false;
     this.isScrambling = false;
     this.savedNormalSpeed = 300;
     this.lastCoachStage = 0;
@@ -349,6 +352,16 @@ class App {
         this.undoCoachMove();
       });
     }
+
+    if (this.coachFormulaBadge) {
+      this.coachFormulaBadge.addEventListener('click', () => {
+        if (this.currentCoachFormulaId && this.tabModeFormula && this.formulaSelect) {
+          this.tabModeFormula.click();
+          this.formulaSelect.value = this.currentCoachFormulaId;
+          this.trainer.loadFormula(this.currentCoachFormulaId);
+        }
+      });
+    }
   }
 
   setupKeybindings() {
@@ -429,7 +442,19 @@ class App {
           this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
         }
       }
+    } else if (this.isStageSolving) {
+      if (isQueueEmpty) {
+        this.isStageSolving = false;
+        this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
+        this.updateCoachUI();
+      } else {
+        const remaining = this.rubik3D.animationQueue.length;
+        if (this.coachStageBadge) {
+          this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
+        }
+      }
     } else if (isQueueEmpty) {
+      this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
       this.updateCoachUI();
     }
 
@@ -463,6 +488,7 @@ class App {
     this.moveCountEl.textContent = '0';
     this.isScrambled = true;
     this.isAutoSolving = false;
+    this.isStageSolving = false;
     this.isScrambling = true;
     this.coachUndoStack = [];
     this.lastCoachStage = 0;
@@ -494,6 +520,7 @@ class App {
     this.moveCountEl.textContent = '0';
     this.isScrambled = false;
     this.isAutoSolving = false;
+    this.isStageSolving = false;
     this.isScrambling = false;
     this.coachUndoStack = [];
     this.lastCoachStage = 0;
@@ -613,6 +640,18 @@ class App {
     }
 
     this.coachCaseName.textContent = analysis.caseName;
+    this.currentCoachFormulaId = analysis.formulaId || null;
+    if (this.coachFormulaBadge) {
+      if (analysis.formulaTag && !analysis.isSolved) {
+        this.coachFormulaBadge.textContent = analysis.formulaTag;
+        this.coachFormulaBadge.title = analysis.formulaId
+          ? `Bấm để mở "${analysis.formulaTag}" trong Thư viện Mẫu`
+          : analysis.formulaTag;
+        this.coachFormulaBadge.style.display = 'inline-flex';
+      } else {
+        this.coachFormulaBadge.style.display = 'none';
+      }
+    }
     const fullHint = analysis.formula ? `${analysis.formula} — ${analysis.hint}` : analysis.hint;
     this.coachHintText.textContent = fullHint;
     this.coachHintText.title = fullHint;
@@ -714,6 +753,7 @@ class App {
     const moves = analysis.moves;
     if (!moves || moves.length === 0) return;
 
+    this.isStageSolving = true;
     this.currentCoachMoves = [];
     this.savedNormalSpeed = this.rubik3D.animationSpeed || 300;
     this.rubik3D.animationSpeed = 160;

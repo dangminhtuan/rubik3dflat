@@ -644,9 +644,17 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   flex-direction: column;
   justify-content: center;
   min-width: 140px;
-  max-width: 240px;
+  max-width: 320px;
   overflow: hidden;
   line-height: 1.25;
+}
+
+.coach-case-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .coach-case-name {
@@ -656,6 +664,30 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.coach-formula-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: 4px;
+  font-size: 8.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.coach-formula-badge:hover {
+  background: rgba(245, 158, 11, 0.35);
+  color: #fef08a;
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
 
 .coach-hint-text {
@@ -881,11 +913,16 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
 
   .coach-info-wrapper {
     min-width: 50px;
-    max-width: 100px;
+    max-width: 120px;
   }
 
   .coach-case-name {
     font-size: 9.5px;
+  }
+
+  .coach-formula-badge {
+    font-size: 7.5px;
+    padding: 0 4px;
   }
 
   .coach-hint-text {

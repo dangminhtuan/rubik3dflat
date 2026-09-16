@@ -51,6 +51,20 @@ export const FORMULAS = [
     sequence: ["U'", "L'", 'U', 'L', 'U', 'F', "U'", "F'"]
   },
   {
+    id: 'niklas',
+    name: 'Niklas (Định vị 4 góc đỉnh)',
+    stage: 'Tầng 3',
+    description: 'Hoán vị 3 góc tầng 3 khi giữ nguyên 1 góc đúng ở trước-phải.',
+    sequence: ['U', 'R', "U'", "L'", 'U', "R'", "U'", 'L']
+  },
+  {
+    id: 'orient-corner',
+    name: "Lật góc vàng (R' D' R D)",
+    stage: 'Tầng 3',
+    description: "Lật ngửa mặt vàng của góc tầng 3 về đỉnh U. Lặp lại 2 hoặc 4 lần cho mỗi góc.",
+    sequence: ["R'", "D'", 'R', 'D']
+  },
+  {
     id: 't-perm',
     name: 'T-Perm (Hoán vị góc & cạnh)',
     stage: 'PLL Nâng cao',
