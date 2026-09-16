@@ -119,7 +119,7 @@ class App {
     this.btnPlayDemo.addEventListener('click', () => {
       if (this.trainer.isPlaying) {
         this.trainer.stop();
-        this.btnPlayDemo.textContent = '▶ Chạy Mẫu';
+        this.btnPlayDemo.textContent = '▶ Tiếp Tục';
       } else {
         this.trainer.playAll(420);
         this.btnPlayDemo.textContent = '⏸ Tạm Dừng';

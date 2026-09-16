@@ -59,11 +59,6 @@ export class Rubik3D {
     const dirLight2 = new THREE.DirectionalLight(0x60a5fa, 0.8);
     dirLight2.position.set(-10, -6, -10);
     this.scene.add(dirLight2);
-
-    // Vòng tròn ánh sáng nền sàn
-    const gridHelper = new THREE.GridHelper(16, 24, 0x1e293b, 0x0f172a);
-    gridHelper.position.y = -3.8;
-    this.scene.add(gridHelper);
   }
 
   // Tạo 27 khối con (Cubies)

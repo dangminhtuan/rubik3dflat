@@ -83,8 +83,10 @@ export class FormulaTrainer {
   nextStep() {
     if (!this.currentFormula) return;
     if (this.stepIndex >= this.currentFormula.sequence.length) {
-      this.stop();
-      return;
+      this.stepIndex = 0;
+      if (this.onStepChange) {
+        this.onStepChange(this.currentFormula, this.stepIndex);
+      }
     }
 
     const move = this.currentFormula.sequence[this.stepIndex];
@@ -104,6 +106,14 @@ export class FormulaTrainer {
   playAll(speedMs = 450) {
     if (!this.currentFormula) return;
     if (this.isPlaying) return;
+
+    // Tự động tua lại từ đầu nếu đã chạy hết chuỗi công thức
+    if (this.stepIndex >= this.currentFormula.sequence.length) {
+      this.stepIndex = 0;
+      if (this.onStepChange) {
+        this.onStepChange(this.currentFormula, this.stepIndex);
+      }
+    }
 
     this.isPlaying = true;
     const playNext = () => {
