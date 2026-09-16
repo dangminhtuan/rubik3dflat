@@ -383,14 +383,14 @@ class App {
         this.isAutoSolving = false;
         this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
         if (this.btnCoachAuto) {
-          this.btnCoachAuto.textContent = '⚡ Tự Giải Hết';
+          this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
           this.btnCoachAuto.classList.add('primary');
         }
         this.updateCoachUI();
       } else {
         const remaining = this.rubik3D.animationQueue.length;
         if (this.coachStageBadge) {
-          this.coachStageBadge.textContent = `🎯 CÒN ${remaining} NƯỚC`;
+          this.coachStageBadge.innerHTML = `🎯 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
         }
       }
     } else if (isQueueEmpty) {
@@ -401,8 +401,8 @@ class App {
     if (this.isScrambled && this.state.isSolved()) {
       this.stopTimer();
       this.isScrambled = false;
-      this.statusBadge.textContent = '🎉 HOÀN THÀNH!';
-      this.statusBadge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      this.statusBadge.innerHTML = '🎉 <span class="btn-lbl">HOÀN THÀNH!</span>';
+      this.statusBadge.className = 'badge-tag badge-success';
       sound.playVictory();
       confetti({
         particleCount: 120,
@@ -434,12 +434,12 @@ class App {
       this.btnCoachUndo.style.display = 'none';
     }
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.textContent = '⚡ Tự Giải Hết';
+      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
-    this.statusBadge.textContent = 'ĐANG GIẢI';
-    this.statusBadge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+    this.statusBadge.innerHTML = '⚡ <span class="btn-lbl">ĐANG GIẢI</span>';
+    this.statusBadge.className = 'badge-tag badge-warning';
 
     const scrambleMoves = this.state.generateScramble(20);
     this.savedNormalSpeed = this.rubik3D.animationSpeed || 300;
@@ -464,7 +464,7 @@ class App {
       this.btnCoachUndo.style.display = 'none';
     }
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.textContent = '⚡ Tự Giải Hết';
+      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
@@ -473,8 +473,8 @@ class App {
     this.updateAllViews();
     this.updateCoachUI();
 
-    this.statusBadge.textContent = 'NGUYÊN BẢN';
-    this.statusBadge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30';
+    this.statusBadge.innerHTML = '🟢 <span class="btn-lbl">NGUYÊN BẢN</span>';
+    this.statusBadge.className = 'badge-tag';
   }
 
   startTimer() {
@@ -556,12 +556,12 @@ class App {
 
     // Cập nhật huy hiệu đếm ngược
     if (analysis.isSolved || analysis.stage === 8) {
-      this.coachStageBadge.textContent = '🎉 HOÀN THÀNH';
+      this.coachStageBadge.innerHTML = '🎉 <span class="badge-lbl">HOÀN THÀNH</span>';
       this.coachStageBadge.style.background = 'rgba(16, 185, 129, 0.2)';
       this.coachStageBadge.style.color = '#34d399';
       this.coachStageBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
     } else {
-      this.coachStageBadge.textContent = analysis.badgeText; // '🎯 CÒN X NƯỚC'
+      this.coachStageBadge.innerHTML = `🎯 <span class="badge-lbl">CÒN </span>${analysis.remainingCount}<span class="badge-lbl"> NƯỚC</span>`;
       this.coachStageBadge.style.background = 'rgba(56, 189, 248, 0.15)';
       this.coachStageBadge.style.color = '#38bdf8';
       this.coachStageBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
@@ -576,8 +576,8 @@ class App {
     if (!this.currentCoachMoves || this.currentCoachMoves.length === 0) {
       if (analysis.isSolved) {
         const span = document.createElement('span');
-        span.className = 'px-2 py-0.5 rounded text-xs font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30';
-        span.textContent = '6 Mặt Đã Hoàn Hảo!';
+        span.className = 'coach-steps-badge';
+        span.innerHTML = '✨ <span class="btn-lbl">6 Mặt Hoàn Hảo</span>';
         this.coachSteps.appendChild(span);
       }
       if (this.btnCoachAuto) {
@@ -593,9 +593,7 @@ class App {
     } else {
       this.currentCoachMoves.forEach((m, idx) => {
         const span = document.createElement('span');
-        span.className = idx === 0
-          ? 'px-1.5 py-0.5 rounded text-xs font-bold font-mono tracking-wider bg-cyan-500/30 text-cyan-200 border border-cyan-400 shadow-sm'
-          : 'px-1.5 py-0.5 rounded text-xs font-bold font-mono tracking-wider bg-slate-800/80 text-cyan-300 border border-slate-700/60';
+        span.className = idx === 0 ? 'move-pill next-move' : 'move-pill';
         span.textContent = m;
         this.coachSteps.appendChild(span);
       });
@@ -622,7 +620,7 @@ class App {
       this.rubik3D.animationQueue = [];
       this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
       if (this.btnCoachAuto) {
-        this.btnCoachAuto.textContent = '⚡ Tự Giải Hết';
+        this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
         this.btnCoachAuto.classList.add('primary');
       }
       this.updateCoachUI();
@@ -636,7 +634,7 @@ class App {
 
     this.isAutoSolving = true;
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.textContent = '⏸ Tạm Dừng';
+      this.btnCoachAuto.innerHTML = '⏸ <span class="btn-lbl">Tạm Dừng</span>';
       this.btnCoachAuto.classList.remove('primary');
     }
 
