@@ -312,6 +312,7 @@ class App {
         this.tabModeFormula.classList.remove('active');
         this.coachPanel.style.display = 'flex';
         this.formulaPanel.style.display = 'none';
+        if (this.btnCoachStep) this.btnCoachStep.style.display = 'inline-flex';
         this.updateCoachUI();
       });
 
@@ -320,6 +321,7 @@ class App {
         this.tabModeCoach.classList.remove('active');
         this.formulaPanel.style.display = 'flex';
         this.coachPanel.style.display = 'none';
+        if (this.btnCoachStep) this.btnCoachStep.style.display = 'none';
       });
     }
 

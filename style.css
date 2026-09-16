@@ -350,6 +350,68 @@ body.icon-only-mode .coach-stage-badge {
   color: var(--accent-cyan);
 }
 
+/* Nút Play nổi chuyên dụng ngón cái (Vị trí 1 - Golden Thumb Zone) */
+.btn-thumb-play {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  border: 1.5px solid #38bdf8;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.45), 0 0 12px rgba(56, 189, 248, 0.35);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-thumb-play:hover {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6), 0 0 16px rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-thumb-play:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+}
+
+.btn-thumb-play .thumb-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.btn-thumb-play:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  filter: grayscale(0.5);
+}
+
+body.icon-only-mode .btn-thumb-play {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+}
+
+body.icon-only-mode .btn-thumb-play .thumb-icon {
+  font-size: 18px;
+  margin-left: 2px;
+}
+
 /* Thanh điều khiển trung tâm */
 .controls-bar {
   height: 44px;
@@ -838,5 +900,17 @@ body.icon-only-mode .coach-stage-badge {
   .btn-action {
     padding: 3px 6px;
     font-size: 9.5px;
+  }
+
+  .btn-thumb-play {
+    bottom: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 10.5px;
+  }
+
+  body.icon-only-mode .btn-thumb-play {
+    width: 44px;
+    height: 44px;
   }
 }

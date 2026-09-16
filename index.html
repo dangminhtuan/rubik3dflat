@@ -89,7 +89,13 @@
       </div>
 
       <!-- Canvas 3D Three.js -->
-      <div id="rubik-canvas" class="canvas-wrapper"></div>
+      <div id="rubik-canvas" class="canvas-wrapper">
+        <!-- Nút Play ngón cái chuyên dụng (Vị trí 1 - Golden Thumb Zone) -->
+        <button id="btn-coach-step" class="btn-thumb-play" title="Xoay đúng 1 nước tiếp theo (Nước đôi L2 = bấm L 2 lần)">
+          <span class="thumb-icon">▶</span>
+          <span class="btn-lbl">1 Nước</span>
+        </button>
+      </div>
 
       <!-- Thanh điều khiển trung tâm: Reset View & Reset Rubik + Thanh 12 phím xoay -->
       <div class="controls-bar" id="controls-bar">
@@ -164,7 +170,6 @@
             <span id="coach-hint-text" class="coach-hint-text">Bấm "Xáo Trộn" góc trên để bắt đầu</span>
           </div>
           <div id="coach-steps" class="formula-steps-container"></div>
-          <button id="btn-coach-step" class="btn-action" title="Xoay đúng 1 nước tiếp theo (Nước đôi L2 = bấm L 2 lần)">▶ <span class="btn-lbl">1 Nước</span></button>
           <button id="btn-coach-stage" class="btn-action primary" title="Máy tự giải hoàn tất bước này rồi dừng lại">⏭ <span class="btn-lbl">Xong Bước</span></button>
           <button id="btn-coach-auto" class="btn-action" title="Máy tự động xoay giải toàn bộ về đích 6 mặt" style="display: none;">⚡ <span class="btn-lbl">Tự Giải</span></button>
           <button id="btn-coach-undo" class="btn-action btn-undo" title="Hoàn tác lại nước vừa xoay" disabled>↩️ <span class="btn-lbl">Hoàn Tác</span></button>
