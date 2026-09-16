@@ -1,6 +1,7 @@
 // Hệ thống Gia Sư Rubik 3D Thông Minh (LBL 7 Bước Chuẩn Sư Phạm)
 // Giám sát toàn bộ 54 ô màu thời gian thực và giải quyết chính xác từng giai đoạn theo giáo trình quốc tế
 import Cube from 'cubejs';
+import { i18n } from './i18n.js';
 
 const ALL_MOVES = ['U', "U'", "U2", 'D', "D'", "D2", 'L', "L'", "L2", 'R', "R'", "R2", 'F', "F'", "F2", 'B', "B'", "B2"];
 
@@ -561,11 +562,11 @@ export class CoachEngine {
       return {
         stage: 8,
         remainingCount: 0,
-        badgeText: '🎉 HOÀN THÀNH',
-        formulaTag: 'Hoàn Tất 6 Mặt',
-        caseName: '6 Mặt Đã Hoàn Hảo',
-        formula: '🎉 Xuất Sắc!',
-        hint: 'Tuyệt vời! Toàn bộ khối Rubik đã về đích hoàn tất.',
+        badgeText: `🎉 ${i18n.t('coach_completed')}`,
+        formulaTag: i18n.t('coach_solved_pill'),
+        caseName: i18n.t('coach_solved_banner'),
+        formula: i18n.t('coach_solved_formula'),
+        hint: i18n.t('coach_solved_hint'),
         moves: [],
         isSolved: true,
         color: '#10b981'
@@ -585,12 +586,12 @@ export class CoachEngine {
       return {
         stage: 1,
         remainingCount: stageMoves.length,
-        badgeText: `🏁 BƯỚC 1/7`,
-        formulaTag: 'Mẫu: Cạnh Trắng Đáy',
+        badgeText: `🏁 ${i18n.t('coach_stage_prefix')}1${i18n.t('coach_step_of')}`,
+        formulaTag: i18n.t('stage1_tag'),
         formulaId: null,
-        caseName: `Bước 1/7: Dấu Cộng Trắng Đáy (${correctEdges}/4 cạnh)`,
-        formula: 'Hoa cúc 🌼 hoặc đưa trực tiếp về đáy D',
-        hint: `Đưa 4 viên cạnh trắng về đáy D khớp màu với 4 tâm bên. Bấm [⏭ Xong Bước] để máy giải xong Dấu Cộng.`,
+        caseName: i18n.t('stage1_name', { count: correctEdges }),
+        formula: i18n.t('stage1_formula'),
+        hint: i18n.t('stage1_hint'),
         moves: stageMoves,
         isSolved: false,
         color: '#38bdf8'
@@ -604,12 +605,12 @@ export class CoachEngine {
       return {
         stage: 2,
         remainingCount: stageMoves.length,
-        badgeText: `🏁 BƯỚC 2/7`,
-        formulaTag: "Mẫu: Sexy Move (R U R' U')",
+        badgeText: `🏁 ${i18n.t('coach_stage_prefix')}2${i18n.t('coach_step_of')}`,
+        formulaTag: i18n.t('stage2_tag'),
         formulaId: 'sexy-move',
-        caseName: `Bước 2/7: 4 Góc Trắng Tầng 1`,
-        formula: "R U R' U' (Sexy Move)",
-        hint: `Đưa góc trắng về phía trên khe đích rồi áp dụng R U R' U' từ 1-5 lần. Bấm [⏭ Xong Bước] để giải xong Tầng 1.`,
+        caseName: i18n.t('stage2_name'),
+        formula: i18n.t('stage2_formula'),
+        hint: i18n.t('stage2_hint'),
         moves: stageMoves,
         isSolved: false,
         color: '#38bdf8'
@@ -623,12 +624,12 @@ export class CoachEngine {
       return {
         stage: 3,
         remainingCount: stageMoves.length,
-        badgeText: `🏁 BƯỚC 3/7`,
-        formulaTag: 'Mẫu: Ghép Cạnh Tầng 2',
+        badgeText: `🏁 ${i18n.t('coach_stage_prefix')}3${i18n.t('coach_step_of')}`,
+        formulaTag: i18n.t('stage3_tag'),
         formulaId: 'f2l-right',
-        caseName: `Bước 3/7: 4 Cạnh Tầng 2 (Giữa)`,
-        formula: "Phải: U R U' R' U' F' U F | Trái: U' L' U L U F U' F'",
-        hint: `Khớp màu cạnh tầng 3 với tâm trước, ghép sang phải hoặc trái. Bấm [⏭ Xong Bước] để giải xong Tầng 2.`,
+        caseName: i18n.t('stage3_name'),
+        formula: i18n.t('stage3_formula'),
+        hint: i18n.t('stage3_hint'),
         moves: stageMoves,
         isSolved: false,
         color: '#38bdf8'
@@ -638,12 +639,12 @@ export class CoachEngine {
     // 4. Bước 4: Dấu cộng vàng đỉnh (Yellow Cross on U)
     if (!isYellowCross(s)) {
       const yellowCount = [s[1], s[3], s[5], s[7]].filter(c => c === 'U').length;
-      let caseDesc = 'Chấm Vàng';
+      let caseDesc = i18n.t('case_dot');
       if (yellowCount === 2) {
         if ((s[1] === 'U' && s[7] === 'U') || (s[3] === 'U' && s[5] === 'U')) {
-          caseDesc = 'Vạch Ngang';
+          caseDesc = i18n.t('case_line');
         } else {
-          caseDesc = 'Chữ L Ngược';
+          caseDesc = i18n.t('case_hook');
         }
       }
 
@@ -652,12 +653,12 @@ export class CoachEngine {
       return {
         stage: 4,
         remainingCount: stageMoves.length,
-        badgeText: `🏁 BƯỚC 4/7`,
-        formulaTag: "Mẫu: Dấu Cộng Vàng (F R U R' U' F')",
+        badgeText: `🏁 ${i18n.t('coach_stage_prefix')}4${i18n.t('coach_step_of')}`,
+        formulaTag: i18n.t('stage4_tag'),
         formulaId: 'yellow-cross',
-        caseName: `Bước 4/7: Dấu Cộng Vàng (${caseDesc})`,
-        formula: "F R U R' U' F'",
-        hint: `Áp dụng công thức F R U R' U' F' để chuyển vạch ngang/chữ L thành dấu cộng vàng. Bấm [⏭ Xong Bước] để giải xong Dấu Cộng Vàng.`,
+        caseName: i18n.t('stage4_name', { caseDesc }),
+        formula: i18n.t('stage4_formula'),
+        hint: i18n.t('stage4_hint'),
         moves: stageMoves,
         isSolved: false,
         color: '#38bdf8'
@@ -671,12 +672,12 @@ export class CoachEngine {
       return {
         stage: 5,
         remainingCount: stageMoves.length,
-        badgeText: `🏁 BƯỚC 5/7`,
-        formulaTag: 'Mẫu: Sune Khớp Cạnh',
+        badgeText: `🏁 ${i18n.t('coach_stage_prefix')}5${i18n.t('coach_step_of')}`,
+        formulaTag: i18n.t('stage5_tag'),
         formulaId: 'sune',
-        caseName: `Bước 5/7: Khớp Màu Cạnh Đỉnh (Sune)`,
-        formula: "R U R' U R U2 R' U",
-        hint: `Xoay U tìm 2 cạnh khớp màu tâm, để ở sau-phải rồi dùng Sune. Bấm [⏭ Xong Bước] để khớp 4 cạnh đỉnh.`,
+        caseName: i18n.t('stage5_name'),
+        formula: i18n.t('stage5_formula'),
+        hint: i18n.t('stage5_hint'),
         moves: stageMoves,
         isSolved: false,
         color: '#38bdf8'
@@ -690,12 +691,12 @@ export class CoachEngine {
       return {
         stage: 6,
         remainingCount: stageMoves.length,
-        badgeText: `🏁 BƯỚC 6/7`,
-        formulaTag: 'Mẫu: Niklas Định Vị Góc',
+        badgeText: `🏁 ${i18n.t('coach_stage_prefix')}6${i18n.t('coach_step_of')}`,
+        formulaTag: i18n.t('stage6_tag'),
         formulaId: 'niklas',
-        caseName: `Bước 6/7: Định Vị 4 Góc Đỉnh (Niklas)`,
-        formula: "U R U' L' U R' U' L",
-        hint: `Tìm 1 góc đúng, để ở trước-phải rồi dùng Niklas để hoán vị 3 góc còn lại. Bấm [⏭ Xong Bước] để định vị 4 góc.`,
+        caseName: i18n.t('stage6_name'),
+        formula: i18n.t('stage6_formula'),
+        hint: i18n.t('stage6_hint'),
         moves: stageMoves,
         isSolved: false,
         color: '#38bdf8'
@@ -708,12 +709,12 @@ export class CoachEngine {
     return {
       stage: 7,
       remainingCount: stageMoves.length,
-      badgeText: `🏁 BƯỚC 7/7`,
-      formulaTag: "Mẫu: Lật Góc Vàng (R' D' R D)",
+      badgeText: `🏁 ${i18n.t('coach_stage_prefix')}7${i18n.t('coach_step_of')}`,
+      formulaTag: i18n.t('stage7_tag'),
       formulaId: 'orient-corner',
-      caseName: `Bước 7/7: Lật Góc Vàng Về Đích`,
-      formula: "R' D' R D (lặp lại cho từng góc)",
-      hint: `Đặt góc chưa xong ở trước-phải, xoay R' D' R D đến khi vàng ngửa lên. Bấm [⏭ Xong Bước] để hoàn tất 6 mặt.`,
+      caseName: i18n.t('stage7_name'),
+      formula: i18n.t('stage7_formula'),
+      hint: i18n.t('stage7_hint'),
       moves: stageMoves,
       isSolved: false,
       color: '#38bdf8'

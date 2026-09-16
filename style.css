@@ -128,6 +128,84 @@ body {
   border: 1px solid #f59e0b;
 }
 
+/* Menu Chọn Ngôn Ngữ */
+.lang-menu-container {
+  position: relative;
+}
+
+.lang-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 195px;
+  background: rgba(14, 20, 34, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 15px rgba(6, 182, 212, 0.25);
+  z-index: 100;
+  padding: 8px;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+.lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.lang-item:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.lang-item.active {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: var(--accent-cyan);
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.lang-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.lang-name {
+  flex: 1;
+}
+
+.lang-check {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--accent-cyan);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.lang-item.active .lang-check {
+  opacity: 1;
+}
+
 /* Menu Con Mắt & Tùy chọn hiển thị */
 .display-menu-container {
   position: relative;

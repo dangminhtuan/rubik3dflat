@@ -7,6 +7,7 @@ import { RadialDartboard } from './src/radialDartboard.js';
 import { FormulaTrainer, FORMULAS } from './src/trainer.js';
 import { CoachEngine } from './src/coachEngine.js';
 import { sound } from './src/sound.js';
+import { i18n } from './src/i18n.js';
 
 class App {
   constructor() {
@@ -24,6 +25,13 @@ class App {
   }
 
   initElements() {
+    // Menu chọn ngôn ngữ quốc tế
+    this.btnLangToggle = document.getElementById('btn-lang-toggle');
+    this.langPopover = document.getElementById('lang-popover');
+    this.btnCloseLang = document.getElementById('btn-close-lang');
+    this.currentLangLabel = document.getElementById('current-lang-label');
+    this.langItems = document.querySelectorAll('.lang-item');
+
     this.canvasContainer = document.getElementById('rubik-canvas');
     this.mandalaContainer = document.getElementById('mandala-container');
     this.dartboardContainer = document.getElementById('dartboard-container');
@@ -162,13 +170,75 @@ class App {
       this.updateFormulaUI(formula, stepIdx);
     });
 
+    // Khởi tạo đa ngôn ngữ i18n
+    i18n.init();
+    this.updateLanguageUI(i18n.getLanguage());
+    i18n.onChange((newLang) => this.onLanguageChange(newLang));
+
     this.populateFormulaList();
     this.updateAllViews();
     this.updateCoachUI();
     this.applyPreferences();
   }
 
+  updateLanguageUI(lang) {
+    if (this.currentLangLabel) {
+      this.currentLangLabel.textContent = lang.toUpperCase();
+    }
+    if (this.langItems) {
+      this.langItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('data-lang') === lang);
+      });
+    }
+  }
+
+  onLanguageChange(lang) {
+    this.updateLanguageUI(lang);
+    this.populateFormulaList();
+    this.currentCoachMoves = [];
+    this.updateCoachUI();
+    if (this.state.isSolved()) {
+      this.statusBadge.innerHTML = '🟢 <span class="btn-lbl">' + i18n.t('status_solved') + '</span>';
+    } else if (this.isScrambled) {
+      this.statusBadge.innerHTML = '⏳ <span class="btn-lbl">' + i18n.t('status_solving') + '</span>';
+    }
+  }
+
   setupEvents() {
+    // Menu Chọn Ngôn Ngữ Quốc Tế
+    if (this.btnLangToggle && this.langPopover) {
+      this.btnLangToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = this.langPopover.style.display === 'none';
+        this.langPopover.style.display = isHidden ? 'block' : 'none';
+        if (this.displayPopover) this.displayPopover.style.display = 'none';
+      });
+
+      if (this.btnCloseLang) {
+        this.btnCloseLang.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.langPopover.style.display = 'none';
+        });
+      }
+
+      this.langItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const lang = item.getAttribute('data-lang');
+          if (lang) {
+            i18n.setLanguage(lang);
+            this.langPopover.style.display = 'none';
+          }
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!this.langPopover.contains(e.target) && e.target !== this.btnLangToggle && !this.btnLangToggle.contains(e.target)) {
+          this.langPopover.style.display = 'none';
+        }
+      });
+    }
+
     if (this.scrambleBtn) {
       this.scrambleBtn.addEventListener('click', () => this.scramble());
     }
@@ -185,6 +255,7 @@ class App {
     if (this.btnDisplayToggle && this.displayPopover) {
       this.btnDisplayToggle.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (this.langPopover) this.langPopover.style.display = 'none';
         const isHidden = this.displayPopover.style.display === 'none';
         this.displayPopover.style.display = isHidden ? 'block' : 'none';
       });
@@ -281,7 +352,9 @@ class App {
     if (this.btnResetFormula) {
       this.btnResetFormula.addEventListener('click', () => {
         this.trainer.resetProgress();
-        this.btnPlayDemo.textContent = '▶ Chạy Mẫu';
+        if (this.btnPlayDemo) {
+          this.btnPlayDemo.innerHTML = '▶ <span class="btn-lbl">' + i18n.t('btn_play_demo') + '</span>';
+        }
       });
     }
     // Sự kiện chuyển đổi giữa 2 mô hình phẳng 2D: 3 Vòng Tròn vs Hướng Tâm
@@ -292,7 +365,7 @@ class App {
         this.mandalaContainer.style.display = 'flex';
         this.dartboardContainer.style.display = 'none';
         if (this.mandalaHint) {
-          this.mandalaHint.textContent = '💡 2D: Chạm màu = Thuận, nhãn ngoài = Nghịch';
+          this.mandalaHint.textContent = i18n.t('mandala_hint');
         }
       });
 
@@ -305,7 +378,7 @@ class App {
           this.dartboard.update();
         }
         if (this.mandalaHint) {
-          this.mandalaHint.textContent = '💡 Chạm tâm = Thuận | Rìa = Nghịch | Đáy D: chạm ngoài = Thuận';
+          this.mandalaHint.textContent = i18n.t('mandala_hint');
         }
       });
     }
@@ -438,14 +511,14 @@ class App {
         this.isAutoSolving = false;
         this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
         if (this.btnCoachAuto) {
-          this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải Hết</span>';
+          this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">' + i18n.t('btn_auto_full') + '</span>';
           this.btnCoachAuto.classList.add('primary');
         }
         this.updateCoachUI();
       } else {
         const remaining = this.rubik3D.animationQueue.length;
         if (this.coachStageBadge) {
-          this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
+          this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">${i18n.t('coach_remaining_moves', { count: remaining })}</span>`;
         }
       }
     } else if (this.isStageSolving) {
@@ -456,7 +529,7 @@ class App {
       } else {
         const remaining = this.rubik3D.animationQueue.length;
         if (this.coachStageBadge) {
-          this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">CÒN </span>${remaining}<span class="badge-lbl"> NƯỚC</span>`;
+          this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">${i18n.t('coach_remaining_moves', { count: remaining })}</span>`;
         }
       }
     } else if (isQueueEmpty) {
@@ -468,7 +541,7 @@ class App {
     if (this.isScrambled && this.state.isSolved()) {
       this.stopTimer();
       this.isScrambled = false;
-      this.statusBadge.innerHTML = '🎉 <span class="btn-lbl">HOÀN THÀNH!</span>';
+      this.statusBadge.innerHTML = '🎉 <span class="btn-lbl">' + i18n.t('status_completed') + '</span>';
       this.statusBadge.className = 'badge-tag badge-success';
       sound.playVictory();
       confetti({
@@ -503,11 +576,11 @@ class App {
       this.btnCoachUndo.disabled = true;
     }
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải</span>';
+      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">' + i18n.t('btn_auto_solve') + '</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
-    this.statusBadge.innerHTML = '⏳ <span class="btn-lbl">ĐANG GIẢI</span>';
+    this.statusBadge.innerHTML = '⏳ <span class="btn-lbl">' + i18n.t('status_solving') + '</span>';
     this.statusBadge.className = 'badge-tag badge-warning';
 
     const scrambleMoves = this.state.generateScramble(20);
@@ -535,7 +608,7 @@ class App {
       this.btnCoachUndo.disabled = true;
     }
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải</span>';
+      this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">' + i18n.t('btn_auto_solve') + '</span>';
       this.btnCoachAuto.classList.add('primary');
     }
 
@@ -544,7 +617,7 @@ class App {
     this.updateAllViews();
     this.updateCoachUI();
 
-    this.statusBadge.innerHTML = '🟢 <span class="btn-lbl">NGUYÊN BẢN</span>';
+    this.statusBadge.innerHTML = '🟢 <span class="btn-lbl">' + i18n.t('status_solved') + '</span>';
     this.statusBadge.className = 'badge-tag';
   }
 
@@ -608,8 +681,9 @@ class App {
       });
     }
 
-    if (this.btnPlayDemo && stepIdx >= formula.sequence.length) {
-      this.btnPlayDemo.textContent = '▶ Chạy Lại';
+    if (this.btnPlayDemo) {
+      const lbl = stepIdx >= formula.sequence.length ? i18n.t('btn_replay_demo') : i18n.t('btn_play_demo');
+      this.btnPlayDemo.innerHTML = `▶ <span class="btn-lbl">${lbl}</span>`;
     }
   }
 
@@ -649,7 +723,7 @@ class App {
       if (this.currentCoachAnalysis && this.currentCoachAnalysis.isSolved) {
         const span = document.createElement('span');
         span.className = 'coach-steps-badge';
-        span.innerHTML = '✨ <span class="btn-lbl">6 Mặt Hoàn Hảo</span>';
+        span.innerHTML = '✨ <span class="btn-lbl">' + i18n.t('coach_solved_pill') + '</span>';
         this.coachSteps.appendChild(span);
       }
       if (this.btnCoachAuto) this.btnCoachAuto.disabled = true;
@@ -660,9 +734,7 @@ class App {
         const span = document.createElement('span');
         span.className = idx === 0 ? 'move-pill next-move' : 'move-pill';
         span.textContent = m;
-        span.title = m.includes('2')
-          ? `Nước đôi ${m}: Bấm phím ${m[0]} 2 lần (hoặc bấm vào đây để xoay)`
-          : `Bấm để xoay ${m}`;
+        span.title = m;
         span.style.cursor = 'pointer';
         span.addEventListener('click', () => {
           this.executeMove(m);
@@ -680,12 +752,12 @@ class App {
 
     // Cập nhật huy hiệu tiến trình 7 bước
     if (analysis.isSolved || analysis.stage === 8) {
-      this.coachStageBadge.innerHTML = '🎉 <span class="badge-lbl">HOÀN THÀNH</span>';
+      this.coachStageBadge.innerHTML = '🎉 <span class="badge-lbl">' + i18n.t('coach_completed') + '</span>';
       this.coachStageBadge.style.background = 'rgba(16, 185, 129, 0.2)';
       this.coachStageBadge.style.color = '#34d399';
       this.coachStageBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
     } else {
-      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">BƯỚC </span>${analysis.stage}/7`;
+      this.coachStageBadge.innerHTML = `🏁 <span class="badge-lbl">${i18n.t('coach_stage_prefix')}</span>${analysis.stage}${i18n.t('coach_step_of')}`;
       this.coachStageBadge.style.background = 'rgba(56, 189, 248, 0.15)';
       this.coachStageBadge.style.color = '#38bdf8';
       this.coachStageBadge.style.borderColor = 'rgba(56, 189, 248, 0.35)';
@@ -700,7 +772,7 @@ class App {
       if (analysis.formulaTag && !analysis.isSolved) {
         this.coachFormulaBadge.textContent = analysis.formulaTag;
         this.coachFormulaBadge.title = analysis.formulaId
-          ? `Bấm để mở "${analysis.formulaTag}" trong Thư viện Mẫu`
+          ? `${i18n.t('tab_formula')}: ${analysis.formulaTag}`
           : analysis.formulaTag;
         this.coachFormulaBadge.style.display = 'inline-flex';
       } else {
@@ -727,7 +799,7 @@ class App {
       this.rubik3D.animationQueue = [];
       this.rubik3D.animationSpeed = this.savedNormalSpeed || 300;
       if (this.btnCoachAuto) {
-        this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">Tự Giải</span>';
+        this.btnCoachAuto.innerHTML = '⚡ <span class="btn-lbl">' + i18n.t('btn_auto_solve') + '</span>';
         this.btnCoachAuto.classList.add('primary');
       }
       this.updateCoachUI();
@@ -742,7 +814,7 @@ class App {
     this.isAutoSolving = true;
     this.currentCoachMoves = [];
     if (this.btnCoachAuto) {
-      this.btnCoachAuto.innerHTML = '⏸ <span class="btn-lbl">Tạm Dừng</span>';
+      this.btnCoachAuto.innerHTML = '⏸ <span class="btn-lbl">' + i18n.t('btn_auto_pause') + '</span>';
       this.btnCoachAuto.classList.remove('primary');
     }
 
