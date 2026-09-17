@@ -1226,6 +1226,26 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   border-color: #38bdf8;
 }
 
+/* Chuẩn màu sắc trực giác: Cấp 1 (Đơn bước) - Sắc lục an tâm */
+.btn-step-single,
+#btn-step-next {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+
+.btn-step-single:hover,
+#btn-step-next:hover {
+  background: rgba(16, 185, 129, 0.3) !important;
+  color: #a7f3d0 !important;
+  border-color: #34d399 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35) !important;
+}
+
+#btn-play-demo {
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.35);
+}
+
 .btn-action:disabled,
 .btn-undo:disabled {
   opacity: 0.35 !important;

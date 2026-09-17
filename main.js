@@ -460,7 +460,7 @@ class App {
       this.btnPlayDemo.addEventListener('click', () => {
         if (this.trainer.isPlaying) {
           this.trainer.stop();
-          this.btnPlayDemo.innerHTML = '▶ <span class="btn-lbl">' + i18n.t('btn_resume_demo') + '</span>';
+          this.btnPlayDemo.innerHTML = '⏭ <span class="btn-lbl">' + i18n.t('btn_resume_demo') + '</span>';
         } else {
           const speedMs = Math.max(120, Math.round(420 / (this.prefs.autoSpeed || 1.0)));
           this.trainer.playAll(speedMs);
@@ -473,7 +473,7 @@ class App {
       this.btnResetFormula.addEventListener('click', () => {
         this.trainer.resetProgress();
         if (this.btnPlayDemo) {
-          this.btnPlayDemo.innerHTML = '▶ <span class="btn-lbl">' + i18n.t('btn_play_demo') + '</span>';
+          this.btnPlayDemo.innerHTML = '⏭ <span class="btn-lbl">' + i18n.t('btn_play_demo') + '</span>';
         }
       });
     }
@@ -938,7 +938,7 @@ class App {
 
     if (this.btnPlayDemo) {
       const lbl = stepIdx >= formula.sequence.length ? i18n.t('btn_replay_demo') : i18n.t('btn_play_demo');
-      this.btnPlayDemo.innerHTML = `▶ <span class="btn-lbl">${lbl}</span>`;
+      this.btnPlayDemo.innerHTML = `⏭ <span class="btn-lbl">${lbl}</span>`;
     }
   }
 
