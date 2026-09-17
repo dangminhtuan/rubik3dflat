@@ -440,6 +440,9 @@ class App {
         this.tabDartboard.classList.remove('active');
         this.mandalaContainer.style.display = 'flex';
         this.dartboardContainer.style.display = 'none';
+        if (this.mandala) {
+          this.mandala.update();
+        }
         if (this.mandalaHint) {
           this.mandalaHint.textContent = i18n.t('mandala_hint');
         }
@@ -584,6 +587,9 @@ class App {
     if (!this.isScrambling) {
       if (this.mandala) {
         this.mandala.animateMove(move, duration);
+      }
+      if (this.dartboard) {
+        this.dartboard.animateMove(move, duration);
       }
       if (this.isAutoSolving || this.isStageSolving) {
         sound.playClick();

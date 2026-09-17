@@ -57,6 +57,16 @@ export class RadialDartboard {
     this.mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     this.svg.appendChild(this.mainGroup);
 
+    // Nhóm hiệu ứng phát sáng viền neon
+    this.highlightGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    this.highlightGroup.setAttribute('class', 'pointer-events-none');
+    this.svg.appendChild(this.highlightGroup);
+
+    // Nhóm hoạt họa xoay 60fps mượt mà
+    this.animGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    this.animGroup.setAttribute('class', 'pointer-events-none');
+    this.svg.appendChild(this.animGroup);
+
     this.computeAndRenderGeometry();
   }
 
@@ -332,6 +342,21 @@ export class RadialDartboard {
 
   // Cập nhật màu 54 ô sticker đồng bộ thời gian thực
   update() {
+    // Dọn dẹp hoạt họa đang chạy nếu có để đảm bảo trạng thái sạch sẽ
+    if (this.currentAnim) {
+      cancelAnimationFrame(this.currentAnim);
+      this.currentAnim = null;
+    }
+    if (this.currentAnimElements) {
+      this.currentAnimElements.forEach(el => {
+        if (el) el.style.opacity = '1';
+      });
+      this.currentAnimElements = null;
+    }
+    if (this.animGroup) {
+      this.animGroup.innerHTML = '';
+    }
+
     if (!this.cellElements) return;
 
     for (const [faceKey, elements] of Object.entries(this.cellElements)) {
@@ -345,5 +370,307 @@ export class RadialDartboard {
         el.setAttribute('fill', hexColor);
       });
     }
+  }
+
+  // Xác định tâm xoay, góc quay và danh sách ô tham gia của từng phép xoay
+  getMoveSpec(move) {
+    if (!move) return null;
+    const face = move[0].toUpperCase();
+    const isDouble = move.includes('2');
+    const isPrime = move.includes("'");
+    const turns = isDouble ? 2 : 1;
+
+    const cx = 270;
+    const cy = 270;
+    const midR = 151; // (R2 + R3) / 2 = (128 + 174) / 2
+
+    switch (face) {
+      case 'U': {
+        // Xoay quanh tâm (270, 270). Thuận chiều kim đồng hồ khi U thuận.
+        const sign = isPrime ? -1 : 1;
+        const targetAngle = sign * turns * 90;
+        const targets = [];
+        // 9 ô của mặt U
+        for (let i = 0; i < 9; i++) targets.push({ face: 'U', idx: i });
+        // Tầng 1 của 4 mặt bên giáp U (hàng 0: indices [0, 1, 2])
+        [0, 1, 2].forEach(i => {
+          targets.push({ face: 'B', idx: i });
+          targets.push({ face: 'R', idx: i });
+          targets.push({ face: 'F', idx: i });
+          targets.push({ face: 'L', idx: i });
+        });
+        return {
+          center: { x: cx, y: cy },
+          targetAngle,
+          targets,
+          face
+        };
+      }
+
+      case 'D': {
+        // Xoay quanh tâm (270, 270). Ngược chiều kim đồng hồ khi nhìn từ đỉnh xuống.
+        const sign = isPrime ? 1 : -1;
+        const targetAngle = sign * turns * 90;
+        const targets = [];
+        // 8 ô của mặt D
+        [0, 1, 2, 3, 5, 6, 7, 8].forEach(i => targets.push({ face: 'D', idx: i }));
+        // Tầng 3 của 4 mặt bên giáp D (hàng 2: indices [6, 7, 8])
+        [6, 7, 8].forEach(i => {
+          targets.push({ face: 'B', idx: i });
+          targets.push({ face: 'R', idx: i });
+          targets.push({ face: 'F', idx: i });
+          targets.push({ face: 'L', idx: i });
+        });
+        return {
+          center: { x: cx, y: cy },
+          targetAngle,
+          targets,
+          face
+        };
+      }
+
+      case 'F': {
+        // Tâm F ở phía dưới (góc 180°): cx = 270, cy = 270 + 151 = 421
+        const sign = isPrime ? -1 : 1;
+        const targetAngle = sign * turns * 90;
+        const targets = [];
+        // 9 ô của mặt F
+        for (let i = 0; i < 9; i++) targets.push({ face: 'F', idx: i });
+        // Các ô tiếp giáp: U cạnh dưới [6,7,8], D cạnh dưới [0,1,2], L cột phải [2,5,8], R cột trái [0,3,6]
+        [6, 7, 8].forEach(i => targets.push({ face: 'U', idx: i }));
+        [0, 1, 2].forEach(i => targets.push({ face: 'D', idx: i }));
+        [2, 5, 8].forEach(i => targets.push({ face: 'L', idx: i }));
+        [0, 3, 6].forEach(i => targets.push({ face: 'R', idx: i }));
+        return {
+          center: { x: cx, y: cy + midR },
+          targetAngle,
+          targets,
+          face
+        };
+      }
+
+      case 'B': {
+        // Tâm B ở phía trên (góc 0°): cx = 270, cy = 270 - 151 = 119
+        // Nhìn từ trước, chiều xoay của B bị nghịch đảo: B thuận là -90°
+        const sign = isPrime ? 1 : -1;
+        const targetAngle = sign * turns * 90;
+        const targets = [];
+        // 9 ô của mặt B
+        for (let i = 0; i < 9; i++) targets.push({ face: 'B', idx: i });
+        // Các ô tiếp giáp: U cạnh trên [0,1,2], D cạnh trên [6,7,8], L cột trái [0,3,6], R cột phải [2,5,8]
+        [0, 1, 2].forEach(i => targets.push({ face: 'U', idx: i }));
+        [6, 7, 8].forEach(i => targets.push({ face: 'D', idx: i }));
+        [0, 3, 6].forEach(i => targets.push({ face: 'L', idx: i }));
+        [2, 5, 8].forEach(i => targets.push({ face: 'R', idx: i }));
+        return {
+          center: { x: cx, y: cy - midR },
+          targetAngle,
+          targets,
+          face
+        };
+      }
+
+      case 'R': {
+        // Tâm R ở bên phải (góc 90°): cx = 270 + 151 = 421, cy = 270
+        const sign = isPrime ? -1 : 1;
+        const targetAngle = sign * turns * 90;
+        const targets = [];
+        // 9 ô của mặt R
+        for (let i = 0; i < 9; i++) targets.push({ face: 'R', idx: i });
+        // Các ô tiếp giáp: U cạnh phải [2,5,8], D cạnh phải [2,5,8], B cột phải [0,3,6], F cột trái [2,5,8]
+        [2, 5, 8].forEach(i => targets.push({ face: 'U', idx: i }));
+        [2, 5, 8].forEach(i => targets.push({ face: 'D', idx: i }));
+        [0, 3, 6].forEach(i => targets.push({ face: 'B', idx: i }));
+        [2, 5, 8].forEach(i => targets.push({ face: 'F', idx: i }));
+        return {
+          center: { x: cx + midR, y: cy },
+          targetAngle,
+          targets,
+          face
+        };
+      }
+
+      case 'L': {
+        // Tâm L ở bên trái (góc 270°): cx = 270 - 151 = 119, cy = 270
+        const sign = isPrime ? -1 : 1;
+        const targetAngle = sign * turns * 90;
+        const targets = [];
+        // 9 ô của mặt L
+        for (let i = 0; i < 9; i++) targets.push({ face: 'L', idx: i });
+        // Các ô tiếp giáp: U cạnh trái [0,3,6], D cạnh trái [0,3,6], B cột trái [2,5,8], F cột phải [0,3,6]
+        [0, 3, 6].forEach(i => targets.push({ face: 'U', idx: i }));
+        [0, 3, 6].forEach(i => targets.push({ face: 'D', idx: i }));
+        [2, 5, 8].forEach(i => targets.push({ face: 'B', idx: i }));
+        [0, 3, 6].forEach(i => targets.push({ face: 'F', idx: i }));
+        return {
+          center: { x: cx - midR, y: cy },
+          targetAngle,
+          targets,
+          face
+        };
+      }
+
+      default:
+        return null;
+    }
+  }
+
+  // Phát sáng neon cyan cho vùng mặt/vành tròn tương ứng
+  highlightMove(move, duration = 160) {
+    if (!move || !this.highlightGroup) return;
+    const face = move[0].toUpperCase();
+
+    if (this.highlightTimeout) {
+      clearTimeout(this.highlightTimeout);
+      this.highlightTimeout = null;
+    }
+
+    this.highlightGroup.innerHTML = '';
+    const cx = 270;
+    const cy = 270;
+    const R1 = 82;
+    const R4 = 220;
+    const R5 = 256;
+
+    let highlightEl = null;
+
+    if (face === 'U') {
+      highlightEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      highlightEl.setAttribute('cx', cx);
+      highlightEl.setAttribute('cy', cy);
+      highlightEl.setAttribute('r', R1);
+      highlightEl.setAttribute('fill', 'rgba(56, 189, 248, 0.12)');
+      highlightEl.setAttribute('stroke', '#38bdf8');
+      highlightEl.setAttribute('stroke-width', '3.0');
+      highlightEl.setAttribute('filter', 'url(#dartboard-glow)');
+    } else if (face === 'D') {
+      highlightEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      highlightEl.setAttribute('d', this.createSectorPath(cx, cy, R4, R5, -45, 315));
+      highlightEl.setAttribute('fill', 'rgba(56, 189, 248, 0.12)');
+      highlightEl.setAttribute('stroke', '#38bdf8');
+      highlightEl.setAttribute('stroke-width', '3.0');
+      highlightEl.setAttribute('filter', 'url(#dartboard-glow)');
+    } else {
+      const degMap = {
+        B: { start: -45, end: 45 },
+        R: { start: 45, end: 135 },
+        F: { start: 135, end: 225 },
+        L: { start: 225, end: 315 }
+      };
+      const degs = degMap[face];
+      if (degs) {
+        highlightEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        highlightEl.setAttribute('d', this.createSectorPath(cx, cy, R1, R4, degs.start, degs.end));
+        highlightEl.setAttribute('fill', 'rgba(56, 189, 248, 0.12)');
+        highlightEl.setAttribute('stroke', '#38bdf8');
+        highlightEl.setAttribute('stroke-width', '3.0');
+        highlightEl.setAttribute('filter', 'url(#dartboard-glow)');
+      }
+    }
+
+    if (highlightEl) {
+      highlightEl.style.transition = 'opacity 0.25s ease';
+      highlightEl.style.opacity = '1';
+      this.highlightGroup.appendChild(highlightEl);
+
+      this.highlightTimeout = setTimeout(() => {
+        highlightEl.style.opacity = '0';
+        setTimeout(() => {
+          if (highlightEl.parentNode === this.highlightGroup) {
+            this.highlightGroup.removeChild(highlightEl);
+          }
+        }, 250);
+      }, Math.max(duration, 180));
+    }
+  }
+
+  resetHighlights() {
+    if (this.highlightTimeout) {
+      clearTimeout(this.highlightTimeout);
+      this.highlightTimeout = null;
+    }
+    if (this.highlightGroup) {
+      this.highlightGroup.innerHTML = '';
+    }
+  }
+
+  // Thực thi hoạt họa xoay 60fps mượt mà cho Bia Bắn Tròn Hướng Tâm
+  animateMove(move, duration = 160) {
+    if (!move || !this.cellElements) return;
+
+    // Hủy hoạt họa đang chạy nếu có
+    if (this.currentAnim) {
+      cancelAnimationFrame(this.currentAnim);
+      this.currentAnim = null;
+    }
+    if (this.currentAnimElements) {
+      this.currentAnimElements.forEach(el => {
+        if (el) el.style.opacity = '1';
+      });
+      this.currentAnimElements = null;
+    }
+    if (this.animGroup) {
+      this.animGroup.innerHTML = '';
+    }
+
+    const spec = this.getMoveSpec(move);
+    if (!spec) {
+      this.update();
+      return;
+    }
+
+    // Bật hiệu ứng phát sáng neon
+    this.highlightMove(move, duration);
+
+    const rotatingGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    this.animGroup.appendChild(rotatingGroup);
+
+    const elementsToAnimate = [];
+    spec.targets.forEach(({ face, idx }) => {
+      const el = this.cellElements[face] && this.cellElements[face][idx];
+      if (el) {
+        elementsToAnimate.push(el);
+        const clone = el.cloneNode(true);
+        clone.setAttribute('fill', el.getAttribute('fill'));
+        clone.setAttribute('stroke', el.getAttribute('stroke') || '#090d16');
+        clone.setAttribute('stroke-width', el.getAttribute('stroke-width') || '1.5');
+        clone.style.pointerEvents = 'none';
+        rotatingGroup.appendChild(clone);
+        el.style.opacity = '0';
+      }
+    });
+
+    this.currentAnimElements = elementsToAnimate;
+
+    const { center, targetAngle } = spec;
+    const startTime = performance.now();
+
+    const animLoop = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Easing quad mượt mà đồng bộ với Mandala
+      const ease = progress < 0.5
+        ? 2 * progress * progress
+        : -1 + (4 - 2 * progress) * progress;
+
+      const curAngle = targetAngle * ease;
+      rotatingGroup.setAttribute('transform', `rotate(${curAngle.toFixed(2)}, ${center.x}, ${center.y})`);
+
+      if (progress < 1) {
+        this.currentAnim = requestAnimationFrame(animLoop);
+      } else {
+        this.currentAnim = null;
+        this.animGroup.innerHTML = '';
+        if (this.currentAnimElements) {
+          this.currentAnimElements.forEach(el => {
+            if (el) el.style.opacity = '1';
+          });
+          this.currentAnimElements = null;
+        }
+        this.update();
+      }
+    };
+
+    this.currentAnim = requestAnimationFrame(animLoop);
   }
 }
