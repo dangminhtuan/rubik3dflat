@@ -14,6 +14,8 @@ export class Rubik3D {
     this.isAnimating = false;
     this.animationSpeed = 160; // ms mỗi lượt xoay
 
+    this.customView = null;
+    this.loadSavedView();
     this.initScene();
     this.createCube();
     this.createMirrors();
@@ -223,7 +225,15 @@ export class Rubik3D {
     let lastTouchTime = 0;
 
     this.spherical = new THREE.Spherical();
-    this.spherical.setFromVector3(this.camera.position);
+    if (this.customView) {
+      this.spherical.theta = this.customView.theta;
+      this.spherical.phi = this.customView.phi;
+      this.spherical.radius = this.customView.radius;
+      this.camera.position.setFromSpherical(this.spherical);
+      this.camera.lookAt(0, 0, 0);
+    } else {
+      this.spherical.setFromVector3(this.camera.position);
+    }
 
     const raycaster = new THREE.Raycaster();
     const mouseNdc = new THREE.Vector2();
@@ -435,13 +445,104 @@ export class Rubik3D {
     this.camera.lookAt(0, 0, 0);
   }
 
-  resetCamera() {
-    this.camera.position.copy(this.defaultCameraPos);
-    const aspect = this.container.clientWidth / (this.container.clientHeight || 1);
-    this.camera.lookAt(0, aspect < 1 ? -0.35 : 0, 0);
-    if (this.spherical) {
-      this.spherical.setFromVector3(this.defaultCameraPos);
+  loadSavedView() {
+    try {
+      const saved = localStorage.getItem('rubik_custom_camera_view');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.theta === 'number' && typeof parsed.phi === 'number' && typeof parsed.radius === 'number') {
+          this.customView = parsed;
+        }
+      }
+    } catch (e) {
+      this.customView = null;
     }
+  }
+
+  saveCurrentView() {
+    if (!this.spherical) return false;
+    this.customView = {
+      theta: this.spherical.theta,
+      phi: this.spherical.phi,
+      radius: this.spherical.radius
+    };
+    try {
+      localStorage.setItem('rubik_custom_camera_view', JSON.stringify(this.customView));
+    } catch (e) {}
+    return true;
+  }
+
+  clearSavedView() {
+    this.customView = null;
+    try {
+      localStorage.removeItem('rubik_custom_camera_view');
+    } catch (e) {}
+    this.resetCamera(true);
+  }
+
+  hasSavedView() {
+    return !!this.customView;
+  }
+
+  resetCamera(smooth = true) {
+    let targetTheta, targetPhi, targetRadius;
+    if (this.customView) {
+      targetTheta = this.customView.theta;
+      targetPhi = this.customView.phi;
+      targetRadius = this.customView.radius;
+    } else {
+      const defSpherical = new THREE.Spherical().setFromVector3(this.defaultCameraPos);
+      targetTheta = defSpherical.theta;
+      targetPhi = defSpherical.phi;
+      targetRadius = defSpherical.radius;
+    }
+
+    if (!smooth || !this.spherical) {
+      if (this.spherical) {
+        this.spherical.theta = targetTheta;
+        this.spherical.phi = targetPhi;
+        this.spherical.radius = targetRadius;
+        this.camera.position.setFromSpherical(this.spherical);
+      } else {
+        this.camera.position.copy(this.defaultCameraPos);
+      }
+      this.camera.lookAt(0, 0, 0);
+      return;
+    }
+
+    const startTheta = this.spherical.theta;
+    const startPhi = this.spherical.phi;
+    const startRadius = this.spherical.radius;
+
+    // Đường đi ngắn nhất cho góc theta (-PI đến PI)
+    let deltaTheta = (targetTheta - startTheta) % (2 * Math.PI);
+    if (deltaTheta > Math.PI) deltaTheta -= 2 * Math.PI;
+    if (deltaTheta < -Math.PI) deltaTheta += 2 * Math.PI;
+
+    const deltaPhi = targetPhi - startPhi;
+    const deltaRadius = targetRadius - startRadius;
+
+    const startTime = performance.now();
+    const duration = 280;
+
+    const animateReset = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Cubic ease-out
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      this.spherical.theta = startTheta + deltaTheta * ease;
+      this.spherical.phi = startPhi + deltaPhi * ease;
+      this.spherical.radius = startRadius + deltaRadius * ease;
+
+      this.camera.position.setFromSpherical(this.spherical);
+      this.camera.lookAt(0, 0, 0);
+
+      if (progress < 1) {
+        requestAnimationFrame(animateReset);
+      }
+    };
+    requestAnimationFrame(animateReset);
   }
 
   // Thực thi hoạt họa xoay một tầng

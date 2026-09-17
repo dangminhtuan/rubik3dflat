@@ -340,6 +340,57 @@ class App {
       btnZoomOut.addEventListener('click', () => this.rubik3D.zoom(1.2));
     }
 
+    // Nút Ghim / Lưu góc nhìn 3D tùy chỉnh
+    const btnSaveView = document.getElementById('btn-save-view');
+    const updateSaveViewBtnState = () => {
+      if (btnSaveView) {
+        btnSaveView.classList.toggle('active-pinned', this.rubik3D.hasSavedView());
+      }
+    };
+
+    updateSaveViewBtnState();
+
+    if (btnSaveView) {
+      // 1. Click chuột trái: Lưu góc nhìn và mức zoom hiện tại
+      btnSaveView.addEventListener('click', () => {
+        this.rubik3D.saveCurrentView();
+        updateSaveViewBtnState();
+        this.showToast(i18n.t('view_saved_toast'));
+      });
+
+      // 2. Click chuột phải: Khôi phục góc nhìn chuẩn ban đầu
+      btnSaveView.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (this.rubik3D.hasSavedView()) {
+          this.rubik3D.clearSavedView();
+          updateSaveViewBtnState();
+          this.showToast(i18n.t('view_reset_toast'));
+        }
+      });
+
+      // 3. Chạm giữ trên mobile (>500ms): Khôi phục góc nhìn chuẩn
+      let touchTimer = null;
+      btnSaveView.addEventListener('touchstart', () => {
+        touchTimer = setTimeout(() => {
+          touchTimer = null;
+          if (this.rubik3D.hasSavedView()) {
+            this.rubik3D.clearSavedView();
+            updateSaveViewBtnState();
+            this.showToast(i18n.t('view_reset_toast'));
+          }
+        }, 500);
+      }, { passive: true });
+
+      const clearTouch = () => {
+        if (touchTimer) {
+          clearTimeout(touchTimer);
+          touchTimer = null;
+        }
+      };
+      btnSaveView.addEventListener('touchend', clearTouch);
+      btnSaveView.addEventListener('touchcancel', clearTouch);
+    }
+
     // Nút xoay nhanh trên thanh điều khiển
     document.querySelectorAll('[data-move]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -582,6 +633,22 @@ class App {
         origin: { y: 0.6 }
       });
     }
+  }
+
+  showToast(message) {
+    let toast = document.getElementById('rubik-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'rubik-toast';
+      toast.className = 'rubik-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(this._toastTimeout);
+    this._toastTimeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2200);
   }
 
   updateAllViews() {
