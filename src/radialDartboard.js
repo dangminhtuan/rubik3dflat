@@ -5,6 +5,7 @@
 // - Khoảng không gian nền ngoài: Đại diện cho tâm mặt D (chạm ra ngoài để xoay thuận D)
 
 import { FACE_COLORS } from './rubikState.js';
+import { i18n } from './i18n.js';
 
 export class RadialDartboard {
   constructor(containerId, rubikState, onMoveRequest) {
@@ -15,6 +16,11 @@ export class RadialDartboard {
 
     this.initCanvas();
     this.update();
+
+    i18n.onChange(() => {
+      this.initCanvas();
+      this.update();
+    });
   }
 
   initCanvas() {
@@ -47,7 +53,7 @@ export class RadialDartboard {
     this.bgHitZone.setAttribute('fill', 'transparent');
     this.bgHitZone.setAttribute('class', 'cursor-pointer');
     const bgTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    bgTitle.textContent = 'Mặt Đáy (D): Chạm khoảng trống ngoài để xoay thuận (D)';
+    bgTitle.textContent = i18n.t('dartboard_d_bg_tip');
     this.bgHitZone.appendChild(bgTitle);
     this.bgHitZone.addEventListener('click', (e) => {
       this.handleClick("D");
@@ -134,7 +140,7 @@ export class RadialDartboard {
     centerU.setAttribute('stroke-width', '2.0');
     centerU.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
     const titleU = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    titleU.textContent = 'Tâm mặt U (Vàng): Chạm để xoay thuận (U)';
+    titleU.textContent = i18n.t('dartboard_u_center_tip');
     centerU.appendChild(titleU);
     centerU.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -147,14 +153,14 @@ export class RadialDartboard {
     // 4 cạnh: rộng 30 độ (khớp với nan giữa của 4 mặt bên)
     // 4 góc: rộng 60 độ (khớp với đường chéo 45 độ chia 2 nửa)
     const uSectors = [
-      { idx: 1, start: -15, end: 15, name: 'Cạnh Trên (U1 giáp B)' },
-      { idx: 2, start: 15, end: 75, name: 'Góc Trên-Phải (U2)' },
-      { idx: 5, start: 75, end: 105, name: 'Cạnh Phải (U5 giáp R)' },
-      { idx: 8, start: 105, end: 165, name: 'Góc Dưới-Phải (U8)' },
-      { idx: 7, start: 165, end: 195, name: 'Cạnh Dưới (U7 giáp F)' },
-      { idx: 6, start: 195, end: 255, name: 'Góc Dưới-Trái (U6)' },
-      { idx: 3, start: 255, end: 285, name: 'Cạnh Trái (U3 giáp L)' },
-      { idx: 0, start: 285, end: 345, name: 'Góc Trên-Trái (U0)' },
+      { idx: 1, start: -15, end: 15, name: 'U1' },
+      { idx: 2, start: 15, end: 75, name: 'U2' },
+      { idx: 5, start: 75, end: 105, name: 'U5' },
+      { idx: 8, start: 105, end: 165, name: 'U8' },
+      { idx: 7, start: 165, end: 195, name: 'U7' },
+      { idx: 6, start: 195, end: 255, name: 'U6' },
+      { idx: 3, start: 255, end: 285, name: 'U3' },
+      { idx: 0, start: 285, end: 345, name: 'U0' },
     ];
 
     uSectors.forEach(sec => {
@@ -166,7 +172,7 @@ export class RadialDartboard {
       path.setAttribute('stroke-width', '1.5');
       path.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = `Mặt U (${sec.name}): Chạm ô rìa để xoay nghịch (U')`;
+      title.textContent = i18n.t('dartboard_u_edge_tip', { name: sec.name });
       path.appendChild(title);
       path.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -184,10 +190,10 @@ export class RadialDartboard {
     // Tầng 2 (giữa, chứa tâm 4): [5, 4, 3]
     // Tầng 3 (ngoài, gần D): [8, 7, 6]
     const sideFaces = [
-      { faceKey: 'B', label: 'Sau (B)', startDeg: -45 },
-      { faceKey: 'R', label: 'Phải (R)', startDeg: 45 },
-      { faceKey: 'F', label: 'Trước (F)', startDeg: 135 },
-      { faceKey: 'L', label: 'Trái (L)', startDeg: 225 },
+      { faceKey: 'B', label: 'B', startDeg: -45 },
+      { faceKey: 'R', label: 'R', startDeg: 45 },
+      { faceKey: 'F', label: 'F', startDeg: 135 },
+      { faceKey: 'L', label: 'L', startDeg: 225 },
     ];
 
     const ringRanges = [
@@ -220,8 +226,8 @@ export class RadialDartboard {
 
           const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
           const actionText = isCenter 
-            ? `Tâm mặt ${sf.label}: Chạm để xoay thuận (${sf.faceKey})` 
-            : `Ô rìa mặt ${sf.label}: Chạm để xoay nghịch (${sf.faceKey}')`;
+            ? i18n.t('dartboard_face_center_tip', { face: sf.label, move: sf.faceKey }) 
+            : i18n.t('dartboard_face_edge_tip', { face: sf.label, move: `${sf.faceKey}'` });
           title.textContent = actionText;
           path.appendChild(title);
 
@@ -259,14 +265,14 @@ export class RadialDartboard {
     // 3. TẠO MẶT ĐÁY D (VÀNH NGOÀI CÙNG R4 -> R5 - MÀU TRẮNG)
     // 8 ô tiếp giáp: 4 ô cạnh (rộng 30°) và 4 ô góc (rộng 60°) thẳng tắp với các tia hướng tâm
     const dSectors = [
-      { idx: 7, start: -15, end: 15, name: 'Cạnh Trên (D7 giáp B)' },
-      { idx: 8, start: 15, end: 75, name: 'Góc Trên-Phải (D8)' },
-      { idx: 5, start: 75, end: 105, name: 'Cạnh Phải (D5 giáp R)' },
-      { idx: 2, start: 105, end: 165, name: 'Góc Dưới-Phải (D2)' },
-      { idx: 1, start: 165, end: 195, name: 'Cạnh Dưới (D1 giáp F)' },
-      { idx: 0, start: 195, end: 255, name: 'Góc Dưới-Trái (D0)' },
-      { idx: 3, start: 255, end: 285, name: 'Cạnh Trái (D3 giáp L)' },
-      { idx: 6, start: 285, end: 345, name: 'Góc Trên-Trái (D6)' },
+      { idx: 7, start: -15, end: 15, name: 'D7' },
+      { idx: 8, start: 15, end: 75, name: 'D8' },
+      { idx: 5, start: 75, end: 105, name: 'D5' },
+      { idx: 2, start: 105, end: 165, name: 'D2' },
+      { idx: 1, start: 165, end: 195, name: 'D1' },
+      { idx: 0, start: 195, end: 255, name: 'D0' },
+      { idx: 3, start: 255, end: 285, name: 'D3' },
+      { idx: 6, start: 285, end: 345, name: 'D6' },
     ];
 
     dSectors.forEach(sec => {
@@ -279,7 +285,7 @@ export class RadialDartboard {
       path.setAttribute('class', 'cursor-pointer transition-all duration-200 hover:brightness-125');
 
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = `Mặt Đáy (${sec.name}): Chạm ô rìa để xoay nghịch (D')`;
+      title.textContent = i18n.t('dartboard_d_edge_tip', { name: sec.name });
       path.appendChild(title);
 
       path.addEventListener('click', (e) => {

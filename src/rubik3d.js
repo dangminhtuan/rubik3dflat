@@ -1,6 +1,7 @@
 // Dựng không gian 3D Three.js cho Rubik với 3 Tấm Gương Phản Chiếu Mặt Khuất (B, D, L)
 import * as THREE from 'three';
 import { FACE_COLORS } from './rubikState.js';
+import { i18n } from './i18n.js';
 
 export class Rubik3D {
   constructor(canvasContainer, rubikState, onMoveComplete, onDirectClick, onMoveStart) {
@@ -332,14 +333,16 @@ export class Rubik3D {
           const hit = intersects[0];
           if (hit.object.userData?.isMirrorTile) {
             const { faceKey, tileIdx } = hit.object.userData;
-            const action = tileIdx === 4 ? `thuận (${faceKey})` : `nghịch (${faceKey}')`;
-            this.container.title = `Gương ${faceKey}: Bấm để xoay ${action}`;
+            const action = tileIdx === 4 
+              ? i18n.t('rubik3d_action_cw', { move: faceKey }) 
+              : i18n.t('rubik3d_action_ccw', { move: `${faceKey}'` });
+            this.container.title = i18n.t('rubik3d_mirror_tip', { face: faceKey, action });
           } else {
-            this.container.title = `Rubik 3D: Chạm tâm = Xoay thuận | Chạm 8 ô rìa = Xoay nghịch`;
+            this.container.title = i18n.t('rubik3d_tip');
           }
         } else {
           this.container.style.cursor = 'grab';
-          this.container.title = 'Kéo chuột để xoay góc nhìn | Lăn chuột để phóng to/thu nhỏ';
+          this.container.title = i18n.t('rubik3d_orbit_tip');
         }
         return;
       }

@@ -4,6 +4,7 @@
 // sinh ra chính xác 6 cụm mặt, mỗi mặt gồm đúng 9 giao điểm = 54 ô tròn đại diện cho 54 sticker của Rubik.
 
 import { FACE_COLORS, FACE_NAMES } from './rubikState.js';
+import { i18n } from './i18n.js';
 
 export class ConcentricMandala {
   constructor(containerId, rubikState, onMoveRequest) {
@@ -13,6 +14,11 @@ export class ConcentricMandala {
 
     this.initCanvas();
     this.update();
+
+    i18n.onChange(() => {
+      this.initCanvas();
+      this.update();
+    });
   }
 
   initCanvas() {
@@ -232,7 +238,7 @@ export class ConcentricMandala {
         });
 
         const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = `Mặt ${def.label}: Chạm vào mặt để xoay thuận (${def.move}) | Chạm vòng ngoài để xoay ngược (${def.prime})`;
+        title.textContent = i18n.t('mandala_face_tip', { face: def.label, move: def.move, prime: def.prime });
         circle.appendChild(title);
 
         faceG.appendChild(circle);
@@ -260,7 +266,7 @@ export class ConcentricMandala {
       badgeGroup.setAttribute('class', 'cursor-pointer select-none group');
 
       const badgeTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      badgeTitle.textContent = `Vòng ${def.label}': Chạm vào vòng hoặc lân cận để xoay ngược (${def.prime})`;
+      badgeTitle.textContent = i18n.t('mandala_ring_tip', { face: def.label, prime: def.prime });
       badgeGroup.appendChild(badgeTitle);
 
       // 1. Vùng chạm rộng rãi (hit area) lân cận vòng cho ngón tay điện thoại & chuột

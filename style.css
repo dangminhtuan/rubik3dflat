@@ -153,6 +153,27 @@ body {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.lang-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lang-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+}
+
+.lang-list::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+}
+
+.lang-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
 }
 
 .lang-item {
@@ -424,6 +445,58 @@ body.icon-only-mode .btn-header {
 body.icon-only-mode .coach-stage-badge {
   padding: 3px 6px;
   font-size: 11px;
+}
+
+/* Menu Ngôn ngữ dạng Lưới Cờ 5x3 tinh gọn khi ở Chế độ Pro (Icon-Only Mode) */
+body.icon-only-mode .lang-popover {
+  width: 215px;
+  padding: 8px;
+}
+
+body.icon-only-mode .lang-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+body.icon-only-mode .lang-item {
+  width: auto;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  background: rgba(15, 23, 42, 0.7);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.icon-only-mode .lang-item:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-cyan);
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.35);
+}
+
+body.icon-only-mode .lang-item.active {
+  background: rgba(6, 182, 212, 0.28);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.55);
+  transform: scale(1.06);
+}
+
+body.icon-only-mode .lang-item .lang-flag {
+  font-size: 21px;
+  line-height: 1;
+}
+
+body.icon-only-mode .lang-item .lang-name,
+body.icon-only-mode .lang-item .lang-check {
+  display: none !important;
 }
 
 .badge-tag.badge-success {

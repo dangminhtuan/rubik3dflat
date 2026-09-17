@@ -215,10 +215,15 @@ class App {
     if (this.currentLangLabel) {
       this.currentLangLabel.textContent = lang.toUpperCase();
     }
-    if (this.langItems) {
-      this.langItems.forEach(item => {
-        item.classList.toggle('active', item.getAttribute('data-lang') === lang);
-      });
+    const items = document.querySelectorAll('.lang-item');
+    items.forEach(item => {
+      item.classList.toggle('active', item.getAttribute('data-lang') === lang);
+    });
+    if (this.mandalaContainer) {
+      this.mandalaContainer.setAttribute('data-view-label', `🪐 ${i18n.t('tab_mandala')}`);
+    }
+    if (this.dartboardContainer) {
+      this.dartboardContainer.setAttribute('data-view-label', `🎯 ${i18n.t('tab_dartboard')}`);
     }
   }
 
@@ -450,11 +455,11 @@ class App {
       this.btnPlayDemo.addEventListener('click', () => {
         if (this.trainer.isPlaying) {
           this.trainer.stop();
-          this.btnPlayDemo.textContent = '▶ Tiếp Tục';
+          this.btnPlayDemo.innerHTML = '▶ <span class="btn-lbl">' + i18n.t('btn_resume_demo') + '</span>';
         } else {
           const speedMs = Math.max(120, Math.round(420 / (this.prefs.autoSpeed || 1.0)));
           this.trainer.playAll(speedMs);
-          this.btnPlayDemo.textContent = '⏸ Tạm Dừng';
+          this.btnPlayDemo.innerHTML = '⏸ <span class="btn-lbl">' + i18n.t('btn_auto_pause') + '</span>';
         }
       });
     }
@@ -728,7 +733,7 @@ class App {
     }
 
     if (this.mandalaHint) {
-      this.mandalaHint.textContent = i18n.t('mandala_hint');
+      this.mandalaHint.innerHTML = i18n.t('mandala_hint');
     }
 
     localStorage.setItem('rubik_pref_2d_mode', mode);
