@@ -561,16 +561,29 @@ export class ConcentricMandala {
   // Lấy ID tâm vòng tròn tương ứng với từng mặt: U/D -> C1, F/B -> C2, R/L -> C3
   getCenterForMove(move) {
     if (!move) return null;
-    const faceKey = move[0];
-    if (faceKey === 'U' || faceKey === 'D') return 'C1';
-    if (faceKey === 'F' || faceKey === 'B') return 'C2';
-    if (faceKey === 'R' || faceKey === 'L') return 'C3';
+    const faceKey = move[0].toUpperCase();
+    if (faceKey === 'U' || faceKey === 'D' || faceKey === 'E') return 'C1';
+    if (faceKey === 'F' || faceKey === 'B' || faceKey === 'S') return 'C2';
+    if (faceKey === 'R' || faceKey === 'L' || faceKey === 'M') return 'C3';
     return null;
   }
 
-  // Hiệu ứng phát sáng RIÊNG BIỆT cho duy nhất vòng tròn chuyển động (đúng như hình minh họa)
+  // Xác định chính xác chỉ số vòng tròn trong 3 vòng đồng tâm:
+  // layerIdx = 0: Vòng trong cùng (r = 118) -> U, F, R (gần tâm tương ứng)
+  // layerIdx = 1: Vòng ở giữa (r = 142) -> M, E, S (các lát cắt giữa)
+  // layerIdx = 2: Vòng bao ngoài cùng (r = 166) -> D, B, L (xa tâm tương ứng)
+  getActiveRingIndex(move) {
+    if (!move) return 1;
+    const faceKey = move[0].toUpperCase();
+    if (faceKey === 'U' || faceKey === 'F' || faceKey === 'R') return 0; // Vòng trong
+    if (faceKey === 'D' || faceKey === 'B' || faceKey === 'L') return 2; // Vòng ngoài
+    return 1; // Vòng giữa
+  }
+
+  // Hiệu ứng phát sáng RIÊNG BIỆT cho duy nhất vòng tròn chuyển động (đúng như hình minh họa & video)
   highlightMove(move, duration = 160) {
     const activeCenterId = this.getCenterForMove(move);
+    const activeLayerIdx = this.getActiveRingIndex(move);
     if (!activeCenterId || !this.ringElements) return;
 
     if (this.highlightTimeout) {
@@ -579,22 +592,20 @@ export class ConcentricMandala {
     }
 
     this.ringElements.forEach(({ element, centerId, layerIdx }) => {
-      if (centerId === activeCenterId) {
-        if (layerIdx === 1) {
-          // Vòng giữa (quỹ đạo chính của các chấm giao điểm): sáng rực rỡ neon với glow
-          element.setAttribute('stroke', '#38bdf8');
-          element.setAttribute('stroke-width', '2.8');
-          element.setAttribute('opacity', '1.0');
-          element.setAttribute('filter', 'url(#ring-neon-glow)');
-        } else {
-          // 2 vòng phụ trong và ngoài cùng tâm: sáng xanh rõ nét
-          element.setAttribute('stroke', '#0284c7');
-          element.setAttribute('stroke-width', '1.5');
-          element.setAttribute('opacity', '0.65');
-          element.removeAttribute('filter');
-        }
+      if (centerId === activeCenterId && layerIdx === activeLayerIdx) {
+        // Duy nhất vòng tròn tương ứng với thao tác quay: sáng rực rỡ neon với glow
+        element.setAttribute('stroke', '#38bdf8');
+        element.setAttribute('stroke-width', '3.0');
+        element.setAttribute('opacity', '1.0');
+        element.setAttribute('filter', 'url(#ring-neon-glow)');
+      } else if (centerId === activeCenterId) {
+        // 2 vòng tròn còn lại cùng tâm: giữ mờ nhẹ để thấy rõ cấu trúc đồng tâm
+        element.setAttribute('stroke', '#0284c7');
+        element.setAttribute('stroke-width', '1.2');
+        element.setAttribute('opacity', '0.35');
+        element.removeAttribute('filter');
       } else {
-        // 2 tâm còn lại: chìm mờ hẳn xuống nền tối để tôn vòng đang quay
+        // 6 vòng thuộc 2 tâm còn lại: chìm hẳn xuống nền tối để tôn vòng đang quay
         element.setAttribute('stroke', '#334155');
         element.setAttribute('stroke-width', '1.0');
         element.setAttribute('opacity', '0.15');
@@ -605,30 +616,32 @@ export class ConcentricMandala {
     // Sau khi hoạt họa kết thúc, chuyển tiếp mượt mà về trạng thái bình thường
     this.highlightTimeout = setTimeout(() => {
       this.resetRingHighlights();
-    }, Math.max(duration + 80, 240));
+    }, Math.max(duration + 100, 250));
   }
 
   // Hiệu ứng xem trước khi rê chuột qua cụm mặt hoặc nút xoay
   previewRingHover(move) {
     if (this.currentAnim) return;
     const centerId = this.getCenterForMove(move);
+    const targetLayerIdx = this.getActiveRingIndex(move);
     if (!centerId || !this.ringElements) return;
 
     this.ringElements.forEach(({ element, centerId: cid, layerIdx }) => {
-      if (cid === centerId) {
-        if (layerIdx === 1) {
-          element.setAttribute('stroke', '#38bdf8');
-          element.setAttribute('stroke-width', '2.2');
-          element.setAttribute('opacity', '0.85');
-        } else {
-          element.setAttribute('stroke', '#0ea5e9');
-          element.setAttribute('stroke-width', '1.3');
-          element.setAttribute('opacity', '0.55');
-        }
+      if (cid === centerId && layerIdx === targetLayerIdx) {
+        element.setAttribute('stroke', '#38bdf8');
+        element.setAttribute('stroke-width', '2.6');
+        element.setAttribute('opacity', '0.95');
+        element.setAttribute('filter', 'url(#ring-neon-glow)');
+      } else if (cid === centerId) {
+        element.setAttribute('stroke', '#0ea5e9');
+        element.setAttribute('stroke-width', '1.2');
+        element.setAttribute('opacity', '0.45');
+        element.removeAttribute('filter');
       } else {
         element.setAttribute('stroke', '#334155');
         element.setAttribute('stroke-width', '1.0');
-        element.setAttribute('opacity', '0.2');
+        element.setAttribute('opacity', '0.15');
+        element.removeAttribute('filter');
       }
     });
   }
