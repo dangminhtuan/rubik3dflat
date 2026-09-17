@@ -35,8 +35,10 @@ class App {
     this.canvasContainer = document.getElementById('rubik-canvas');
     this.mandalaContainer = document.getElementById('mandala-container');
     this.dartboardContainer = document.getElementById('dartboard-container');
+    this.mandalaViewportsWrapper = document.getElementById('mandala-viewports-wrapper');
     this.tabMandala = document.getElementById('tab-mandala');
     this.tabDartboard = document.getElementById('tab-dartboard');
+    this.tabDual = document.getElementById('tab-dual');
     this.mandalaHint = document.getElementById('mandala-hint');
 
     this.timerEl = document.getElementById('timer-display');
@@ -195,6 +197,10 @@ class App {
     this.updateAllViews();
     this.updateCoachUI();
     this.applyPreferences();
+
+    // Khởi tạo chế độ xem 2D (3 Vòng Tròn / Hướng Tâm / Song Song)
+    const saved2DMode = localStorage.getItem('rubik_pref_2d_mode') || 'mandala';
+    this.set2DViewMode(saved2DMode);
   }
 
   updateLanguageUI(lang) {
@@ -213,6 +219,12 @@ class App {
     this.populateFormulaList();
     this.currentCoachMoves = [];
     this.updateCoachUI();
+    if (this.mandalaContainer) {
+      this.mandalaContainer.setAttribute('data-view-label', `🪐 ${i18n.t('tab_mandala')}`);
+    }
+    if (this.dartboardContainer) {
+      this.dartboardContainer.setAttribute('data-view-label', `🎯 ${i18n.t('tab_dartboard')}`);
+    }
     if (this.state.isSolved()) {
       this.statusBadge.innerHTML = '🟢 <span class="btn-lbl">' + i18n.t('status_solved') + '</span>';
     } else if (this.isScrambled) {
@@ -433,33 +445,15 @@ class App {
         }
       });
     }
-    // Sự kiện chuyển đổi giữa 2 mô hình phẳng 2D: 3 Vòng Tròn vs Hướng Tâm
-    if (this.tabMandala && this.tabDartboard) {
-      this.tabMandala.addEventListener('click', () => {
-        this.tabMandala.classList.add('active');
-        this.tabDartboard.classList.remove('active');
-        this.mandalaContainer.style.display = 'flex';
-        this.dartboardContainer.style.display = 'none';
-        if (this.mandala) {
-          this.mandala.update();
-        }
-        if (this.mandalaHint) {
-          this.mandalaHint.textContent = i18n.t('mandala_hint');
-        }
-      });
-
-      this.tabDartboard.addEventListener('click', () => {
-        this.tabDartboard.classList.add('active');
-        this.tabMandala.classList.remove('active');
-        this.dartboardContainer.style.display = 'flex';
-        this.mandalaContainer.style.display = 'none';
-        if (this.dartboard) {
-          this.dartboard.update();
-        }
-        if (this.mandalaHint) {
-          this.mandalaHint.textContent = i18n.t('mandala_hint');
-        }
-      });
+    // Sự kiện chuyển đổi giữa các chế độ bản đồ 2D: 3 Vòng Tròn, Hướng Tâm, Song Song
+    if (this.tabMandala) {
+      this.tabMandala.addEventListener('click', () => this.set2DViewMode('mandala'));
+    }
+    if (this.tabDartboard) {
+      this.tabDartboard.addEventListener('click', () => this.set2DViewMode('dartboard'));
+    }
+    if (this.tabDual) {
+      this.tabDual.addEventListener('click', () => this.set2DViewMode('dual'));
     }
 
     // Sự kiện chuyển đổi giữa 2 chế độ thanh đáy: Gia Sư AI vs Thư Viện Mẫu
@@ -678,6 +672,44 @@ class App {
       this.dartboard.update();
     }
     this.rubik3D.updateMirrors();
+  }
+
+  set2DViewMode(mode) {
+    this.current2DMode = mode;
+    if (this.tabMandala) this.tabMandala.classList.toggle('active', mode === 'mandala');
+    if (this.tabDartboard) this.tabDartboard.classList.toggle('active', mode === 'dartboard');
+    if (this.tabDual) this.tabDual.classList.toggle('active', mode === 'dual');
+
+    if (mode === 'dual') {
+      if (this.mandalaViewportsWrapper) {
+        this.mandalaViewportsWrapper.classList.add('dual-mode');
+      }
+      if (this.mandalaContainer) this.mandalaContainer.style.display = 'flex';
+      if (this.dartboardContainer) this.dartboardContainer.style.display = 'flex';
+      if (this.mandala) this.mandala.update();
+      if (this.dartboard) this.dartboard.update();
+    } else if (mode === 'dartboard') {
+      if (this.mandalaViewportsWrapper) {
+        this.mandalaViewportsWrapper.classList.remove('dual-mode');
+      }
+      if (this.mandalaContainer) this.mandalaContainer.style.display = 'none';
+      if (this.dartboardContainer) this.dartboardContainer.style.display = 'flex';
+      if (this.dartboard) this.dartboard.update();
+    } else {
+      // mode === 'mandala'
+      if (this.mandalaViewportsWrapper) {
+        this.mandalaViewportsWrapper.classList.remove('dual-mode');
+      }
+      if (this.mandalaContainer) this.mandalaContainer.style.display = 'flex';
+      if (this.dartboardContainer) this.dartboardContainer.style.display = 'none';
+      if (this.mandala) this.mandala.update();
+    }
+
+    if (this.mandalaHint) {
+      this.mandalaHint.textContent = i18n.t('mandala_hint');
+    }
+
+    localStorage.setItem('rubik_pref_2d_mode', mode);
   }
 
   scramble() {

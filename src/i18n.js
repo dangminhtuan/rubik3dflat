@@ -62,6 +62,8 @@ const TRANSLATIONS = {
     tab_mandala_title: 'Bản đồ 3 Vòng Tròn Giao Điểm',
     tab_dartboard: 'HƯỚNG TÂM',
     tab_dartboard_title: 'Bản đồ Tròn Hướng Tâm (Bia Bắn 54 Ô)',
+    tab_dual: 'SONG SONG',
+    tab_dual_title: 'Hiển thị song song cả 2 bản đồ 2D',
     mandala_hint: '💡 Chạm tâm: Thuận | Rìa: Nghịch',
 
     // Thanh điều khiển đáy
@@ -191,6 +193,8 @@ const TRANSLATIONS = {
     tab_mandala_title: '3-Ring Intersecting Flat Map',
     tab_dartboard: 'DARTBOARD',
     tab_dartboard_title: 'Radial 54-Sticker Dartboard View',
+    tab_dual: 'DUAL VIEW',
+    tab_dual_title: 'Display both 2D views side-by-side',
     mandala_hint: '💡 Tap center: Clockwise | Outer ring: Counter-clockwise',
 
     // Bottom toolbar
@@ -320,6 +324,8 @@ const TRANSLATIONS = {
     tab_mandala_title: '3つの同心円平面マップ',
     tab_dartboard: 'ターゲット',
     tab_dartboard_title: '54ピース同心円ダーツボード',
+    tab_dual: '両方表示',
+    tab_dual_title: '2Dビューを並べて同時表示',
     mandala_hint: '💡 中心タップ: 時計回り | 外枠: 反時計回り',
 
     // Bottom
@@ -449,6 +455,8 @@ const TRANSLATIONS = {
     tab_mandala_title: '3相交圆平面展开图',
     tab_dartboard: '同心靶盘',
     tab_dartboard_title: '54色块径向同心靶盘',
+    tab_dual: '并排对比',
+    tab_dual_title: '并排显示两种2D平面视图',
     mandala_hint: '💡 轻触中心: 顺时针 | 外圈: 逆时针',
 
     // Bottom
@@ -578,6 +586,8 @@ const TRANSLATIONS = {
     tab_mandala_title: 'Mapa plano de 3 círculos intersecantes',
     tab_dartboard: 'DIANA',
     tab_dartboard_title: 'Diana radial de 54 pegatinas',
+    tab_dual: 'AMBOS',
+    tab_dual_title: 'Mostrar ambas vistas 2D en paralelo',
     mandala_hint: '💡 Toque centro: Horario | Borde: Antihorario',
 
     // Bottom
