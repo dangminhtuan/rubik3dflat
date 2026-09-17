@@ -39,6 +39,8 @@ const TRANSLATIONS = {
     opt_sound_desc: 'Âm thanh click khi xoay khối',
     opt_auto_solve_title: '⚡ Nút Tự Giải Hết',
     opt_auto_solve_desc: 'Hiện nút máy tự xoay giải 6 mặt (Mặc định ẩn)',
+    opt_speed_title: '⏱️ Tốc độ tự động quay',
+    opt_speed_desc: 'Tốc độ cho Tự giải & chạy mẫu công thức',
 
     // Ngôn ngữ
     lang_select_title: '🌐 Chọn ngôn ngữ',
@@ -170,6 +172,8 @@ const TRANSLATIONS = {
     opt_sound_desc: 'Audio feedback when rotating faces',
     opt_auto_solve_title: '⚡ Full Auto-Solve button',
     opt_auto_solve_desc: 'Show 20-move Kociemba auto-solver (Hidden by default)',
+    opt_speed_title: '⏱️ Auto Play Speed',
+    opt_speed_desc: 'Speed for auto-solve and formula demo',
 
     // Language
     lang_select_title: '🌐 Select Language',
@@ -301,6 +305,8 @@ const TRANSLATIONS = {
     opt_sound_desc: '回転時のクリック音',
     opt_auto_solve_title: '⚡ 完全自動解答ボタン',
     opt_auto_solve_desc: '20手以内のKociemba完全自動解答（初期値は非表示）',
+    opt_speed_title: '⏱️ 自動再生スピード',
+    opt_speed_desc: '自動解法＆公式デモの回転速度',
 
     // Language
     lang_select_title: '🌐 言語選択',
@@ -432,6 +438,8 @@ const TRANSLATIONS = {
     opt_sound_desc: '旋转魔方时的按键音效',
     opt_auto_solve_title: '⚡ 一键完全自动还原',
     opt_auto_solve_desc: '显示20步极速还原按钮 (默认隐藏)',
+    opt_speed_title: '⏱️ 自动旋转速度',
+    opt_speed_desc: '自动还原与公式演示的旋转速度',
 
     // Language
     lang_select_title: '🌐 语言选择',
@@ -563,6 +571,8 @@ const TRANSLATIONS = {
     opt_sound_desc: 'Efectos de sonido al rotar caras',
     opt_auto_solve_title: '⚡ Botón Auto-Resolución total',
     opt_auto_solve_desc: 'Mostrar botón de resolución en 20 movimientos (Oculto por defecto)',
+    opt_speed_title: '⏱️ Velocidad de giro auto',
+    opt_speed_desc: 'Velocidad de auto-resolución y demo',
 
     // Language
     lang_select_title: '🌐 Seleccionar idioma',

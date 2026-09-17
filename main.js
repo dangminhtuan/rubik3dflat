@@ -60,6 +60,9 @@ class App {
     this.chkMoveBar = document.getElementById('chk-move-bar');
     this.chkSound = document.getElementById('chk-sound');
     this.chkAutoSolve = document.getElementById('chk-auto-solve');
+    this.sliderAutoSpeed = document.getElementById('slider-auto-speed');
+    this.speedValueBadge = document.getElementById('speed-value-badge');
+    this.speedPresetBtns = document.querySelectorAll('.speed-preset-btn');
     this.statsBar = document.getElementById('stats-bar');
     this.quickMoveBar = document.getElementById('quick-move-bar');
 
@@ -71,6 +74,7 @@ class App {
       moveBar: localStorage.getItem('rubik_pref_moveBar') !== 'false',
       sound: localStorage.getItem('rubik_pref_sound') !== 'false',
       autoSolve: localStorage.getItem('rubik_pref_autoSolve') === 'true', // Mặc định tắt (false)
+      autoSpeed: parseFloat(localStorage.getItem('rubik_pref_auto_speed')) || 1.0,
     };
 
     // Controls học công thức
@@ -155,12 +159,16 @@ class App {
     }
     if (this.chkAutoSolve) this.chkAutoSolve.checked = this.prefs.autoSolve;
 
+    // 6. Tốc độ tự động quay
+    this.setAutoSpeed(this.prefs.autoSpeed || 1.0);
+
     localStorage.setItem('rubik_pref_rubik3d', this.prefs.rubik3D);
     localStorage.setItem('rubik_pref_labels', this.prefs.labels);
     localStorage.setItem('rubik_pref_stats', this.prefs.stats);
     localStorage.setItem('rubik_pref_moveBar', this.prefs.moveBar);
     localStorage.setItem('rubik_pref_sound', this.prefs.sound);
     localStorage.setItem('rubik_pref_autoSolve', this.prefs.autoSolve);
+    localStorage.setItem('rubik_pref_auto_speed', this.prefs.autoSpeed || 1.0);
   }
 
   initComponents() {
@@ -342,6 +350,19 @@ class App {
         this.applyPreferences();
       });
     }
+    if (this.sliderAutoSpeed) {
+      this.sliderAutoSpeed.addEventListener('input', (e) => {
+        this.setAutoSpeed(e.target.value);
+      });
+    }
+    if (this.speedPresetBtns) {
+      this.speedPresetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const speed = btn.getAttribute('data-speed');
+          this.setAutoSpeed(speed);
+        });
+      });
+    }
 
     // Nút phóng to / thu nhỏ góc nhìn 3D
     const btnZoomIn = document.getElementById('btn-zoom-in');
@@ -431,7 +452,8 @@ class App {
           this.trainer.stop();
           this.btnPlayDemo.textContent = '▶ Tiếp Tục';
         } else {
-          this.trainer.playAll(420);
+          const speedMs = Math.max(120, Math.round(420 / (this.prefs.autoSpeed || 1.0)));
+          this.trainer.playAll(speedMs);
           this.btnPlayDemo.textContent = '⏸ Tạm Dừng';
         }
       });
@@ -712,6 +734,40 @@ class App {
     localStorage.setItem('rubik_pref_2d_mode', mode);
   }
 
+  getAutoSolveDuration() {
+    const base = 180;
+    const mult = this.prefs && this.prefs.autoSpeed ? this.prefs.autoSpeed : 1.0;
+    return Math.max(45, Math.round(base / mult));
+  }
+
+  setAutoSpeed(multiplier) {
+    const mult = Math.max(0.5, Math.min(3.0, parseFloat(multiplier) || 1.0));
+    if (!this.prefs) this.prefs = {};
+    this.prefs.autoSpeed = mult;
+
+    if (this.sliderAutoSpeed) {
+      this.sliderAutoSpeed.value = mult;
+    }
+    if (this.speedValueBadge) {
+      const text = `${mult.toFixed(1).replace('.0', '')}x`;
+      this.speedValueBadge.textContent = text;
+    }
+    if (this.speedPresetBtns) {
+      this.speedPresetBtns.forEach(btn => {
+        const btnSpeed = parseFloat(btn.getAttribute('data-speed'));
+        btn.classList.toggle('active', Math.abs(btnSpeed - mult) < 0.05);
+      });
+    }
+    localStorage.setItem('rubik_pref_auto_speed', mult);
+
+    // Nếu đang trong tiến trình tự giải, cập nhật animationSpeed ngay lập tức
+    if (this.isAutoSolving || this.isStageSolving) {
+      if (this.rubik3D) {
+        this.rubik3D.animationSpeed = this.getAutoSolveDuration();
+      }
+    }
+  }
+
   scramble() {
     this.stopTimer();
     this.resetTimerDisplay();
@@ -973,7 +1029,7 @@ class App {
     }
 
     this.savedNormalSpeed = this.rubik3D.animationSpeed || 300;
-    this.rubik3D.animationSpeed = 160;
+    this.rubik3D.animationSpeed = this.getAutoSolveDuration();
 
     moves.forEach(m => {
       this.rubik3D.queueMove(m);
@@ -1011,7 +1067,7 @@ class App {
     this.isStageSolving = true;
     this.currentCoachMoves = [];
     this.savedNormalSpeed = this.rubik3D.animationSpeed || 300;
-    this.rubik3D.animationSpeed = 160;
+    this.rubik3D.animationSpeed = this.getAutoSolveDuration();
 
     moves.forEach(m => {
       this.rubik3D.queueMove(m);
