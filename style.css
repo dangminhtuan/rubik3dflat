@@ -373,14 +373,15 @@ body {
 .speed-presets {
   display: flex;
   justify-content: space-between;
-  gap: 3px;
+  gap: 2px;
 }
 
 .speed-preset-btn {
   flex: 1;
-  padding: 2px 0;
-  font-size: 9px;
+  padding: 2.5px 0;
+  font-size: 8px;
   font-weight: 700;
+  letter-spacing: -0.2px;
   border-radius: 3px;
   border: 1px solid rgba(51, 65, 85, 0.6);
   background: rgba(30, 41, 59, 0.5);
@@ -388,6 +389,7 @@ body {
   cursor: pointer;
   transition: all 0.12s ease;
   text-align: center;
+  white-space: nowrap;
 }
 
 .speed-preset-btn:hover {

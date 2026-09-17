@@ -741,7 +741,7 @@ class App {
   }
 
   setAutoSpeed(multiplier) {
-    const mult = Math.max(0.5, Math.min(3.0, parseFloat(multiplier) || 1.0));
+    const mult = Math.max(0.25, Math.min(3.0, parseFloat(multiplier) || 1.0));
     if (!this.prefs) this.prefs = {};
     this.prefs.autoSpeed = mult;
 
@@ -749,7 +749,7 @@ class App {
       this.sliderAutoSpeed.value = mult;
     }
     if (this.speedValueBadge) {
-      const text = `${mult.toFixed(1).replace('.0', '')}x`;
+      const text = `${parseFloat(mult.toFixed(2))}x`;
       this.speedValueBadge.textContent = text;
     }
     if (this.speedPresetBtns) {
