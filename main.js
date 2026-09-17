@@ -85,7 +85,6 @@ class App {
     this.formulaSteps = document.getElementById('formula-steps');
     this.btnStepNext = document.getElementById('btn-step-next');
     this.btnPlayDemo = document.getElementById('btn-play-demo');
-    this.btnResetFormula = document.getElementById('btn-reset-formula');
 
     // Tabs chế độ thanh đáy: Gia Sư AI vs Công Thức Mẫu
     this.tabModeCoach = document.getElementById('tab-mode-coach');
@@ -465,15 +464,6 @@ class App {
           const speedMs = Math.max(120, Math.round(420 / (this.prefs.autoSpeed || 1.0)));
           this.trainer.playAll(speedMs);
           this.btnPlayDemo.innerHTML = '⏸ <span class="btn-lbl">' + i18n.t('btn_auto_pause') + '</span>';
-        }
-      });
-    }
-
-    if (this.btnResetFormula) {
-      this.btnResetFormula.addEventListener('click', () => {
-        this.trainer.resetProgress();
-        if (this.btnPlayDemo) {
-          this.btnPlayDemo.innerHTML = '⏭ <span class="btn-lbl">' + i18n.t('btn_play_demo') + '</span>';
         }
       });
     }
