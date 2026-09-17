@@ -264,6 +264,7 @@ export class ConcentricMandala {
       // Nút huy hiệu nhãn bên ngoài: Bấm vào đây hoặc lân cận để xoay ngược (Prime)
       const badgeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       badgeGroup.setAttribute('class', 'cursor-pointer select-none group');
+      badgeGroup.setAttribute('style', 'cursor: pointer;');
 
       const badgeTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
       badgeTitle.textContent = i18n.t('mandala_ring_tip', { face: def.label, prime: def.prime });
@@ -275,6 +276,7 @@ export class ConcentricMandala {
       hitZone.setAttribute('cy', labelY);
       hitZone.setAttribute('r', '34');
       hitZone.setAttribute('fill', 'rgba(255, 255, 255, 0.001)');
+      hitZone.setAttribute('style', 'cursor: pointer;');
       badgeGroup.appendChild(hitZone);
 
       // 2. Vòng hào quang đứt đoạn (halo ring) viền ngoài tinh tế
@@ -288,6 +290,7 @@ export class ConcentricMandala {
       haloRing.setAttribute('stroke-dasharray', '3 3');
       haloRing.setAttribute('opacity', '0.4');
       haloRing.setAttribute('class', 'transition-all duration-300');
+      haloRing.setAttribute('style', 'cursor: pointer;');
       badgeGroup.appendChild(haloRing);
 
       // 3. Vòng tròn nút chính nổi bật
@@ -299,6 +302,7 @@ export class ConcentricMandala {
       badgeBg.setAttribute('stroke', FACE_COLORS[faceKey] || '#64748b');
       badgeBg.setAttribute('stroke-width', '2.2');
       badgeBg.setAttribute('class', 'transition-all duration-200');
+      badgeBg.setAttribute('style', 'cursor: pointer;');
       badgeGroup.appendChild(badgeBg);
 
       // 4. Nhãn chữ hiển thị (U', D', F', B', R', L')
@@ -310,6 +314,8 @@ export class ConcentricMandala {
       label.setAttribute('font-size', '12');
       label.setAttribute('font-weight', '900');
       label.setAttribute('letter-spacing', '0.5px');
+      label.setAttribute('pointer-events', 'none');
+      label.setAttribute('style', 'pointer-events: none; user-select: none; -webkit-user-select: none; cursor: pointer;');
       label.textContent = def.prime;
       badgeGroup.appendChild(label);
 
