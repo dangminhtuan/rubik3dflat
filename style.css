@@ -1386,6 +1386,27 @@ body.hide-rubik-3d .btn-coach-step-inline {
   display: inline-flex !important;
 }
 
+/* Khi ẩn khối 3D trên màn hình dọc (portrait) hoặc điện thoại di động: Tự động xếp chồng dọc 2 bản đồ 2D (Dual View) */
+@media (orientation: portrait), (max-width: 840px) and (orientation: portrait), (max-width: 600px) {
+  body.hide-rubik-3d .mandala-section {
+    padding: 2px 4px !important;
+  }
+
+  body.hide-rubik-3d .mandala-viewports-wrapper.dual-mode {
+    flex-direction: column !important;
+    gap: 6px;
+    padding: 2px;
+  }
+
+  body.hide-rubik-3d .mandala-viewports-wrapper.dual-mode .mandala-viewport {
+    flex: 1 1 50% !important;
+    width: 100% !important;
+    height: 50% !important;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
 /* =======================================================
    TOAST THÔNG BÁO NHẸ (FEEDBACK TOAST)
    ======================================================= */
