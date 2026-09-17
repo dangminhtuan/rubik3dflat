@@ -558,33 +558,56 @@ export class ConcentricMandala {
     this.currentAnim = requestAnimationFrame(animLoop);
   }
 
-  // Lấy ID tâm vòng tròn tương ứng với từng mặt: U/D -> C1, F/B -> C2, R/L -> C3
-  getCenterForMove(move) {
+  // Xác định chính xác tâm và chỉ số vòng tròn (0: inner, 1: middle, 2: outer)
+  // ôm trọn cụm chấm màu đang thực sự di chuyển trên hình mandala 2D:
+  getRingTargetForMove(move) {
     if (!move) return null;
     const faceKey = move[0].toUpperCase();
-    if (faceKey === 'U' || faceKey === 'D' || faceKey === 'E') return 'C1';
-    if (faceKey === 'F' || faceKey === 'B' || faceKey === 'S') return 'C2';
-    if (faceKey === 'R' || faceKey === 'L' || faceKey === 'M') return 'C3';
-    return null;
+    switch (faceKey) {
+      case 'U':
+        // Mặt U ở Đỉnh Trên -> Vòng trong cùng (r=118) của tâm C1 (Đỉnh Trên)
+        return { centerId: 'C1', layerIdx: 0 };
+      case 'F':
+        // Mặt F ở Dưới - Trái -> Vòng trong cùng (r=118) của tâm C2 (Đáy Trái)
+        return { centerId: 'C2', layerIdx: 0 };
+      case 'R':
+        // Mặt R ở Dưới - Phải -> Vòng trong cùng (r=118) của tâm C3 (Đáy Phải)
+        return { centerId: 'C3', layerIdx: 0 };
+      case 'L':
+        // Mặt L ở Trên - Trái -> Vòng ở giữa (r=142) của tâm C2 (quét trực diện qua cụm chấm mặt L và cột trái)
+        return { centerId: 'C2', layerIdx: 1 };
+      case 'B':
+        // Mặt B ở Trên - Phải -> Vòng ở giữa (r=142) của tâm C3 (quét trực diện qua cụm chấm mặt B và cột phải)
+        return { centerId: 'C3', layerIdx: 1 };
+      case 'D':
+        // Mặt D ở Đáy Dưới -> Vòng ngoài cùng (r=166) của tâm C2 (quét toàn bộ vòm đáy chứa cụm chấm mặt D)
+        return { centerId: 'C2', layerIdx: 2 };
+      case 'M':
+        return { centerId: 'C3', layerIdx: 1 };
+      case 'E':
+        return { centerId: 'C1', layerIdx: 1 };
+      case 'S':
+        return { centerId: 'C2', layerIdx: 1 };
+      default:
+        return { centerId: 'C1', layerIdx: 0 };
+    }
   }
 
-  // Xác định chính xác chỉ số vòng tròn trong 3 vòng đồng tâm:
-  // layerIdx = 0: Vòng trong cùng (r = 118) -> U, F, R (gần tâm tương ứng)
-  // layerIdx = 1: Vòng ở giữa (r = 142) -> M, E, S (các lát cắt giữa)
-  // layerIdx = 2: Vòng bao ngoài cùng (r = 166) -> D, B, L (xa tâm tương ứng)
+  getCenterForMove(move) {
+    const target = this.getRingTargetForMove(move);
+    return target ? target.centerId : null;
+  }
+
   getActiveRingIndex(move) {
-    if (!move) return 1;
-    const faceKey = move[0].toUpperCase();
-    if (faceKey === 'U' || faceKey === 'F' || faceKey === 'R') return 0; // Vòng trong
-    if (faceKey === 'D' || faceKey === 'B' || faceKey === 'L') return 2; // Vòng ngoài
-    return 1; // Vòng giữa
+    const target = this.getRingTargetForMove(move);
+    return target ? target.layerIdx : 0;
   }
 
-  // Hiệu ứng phát sáng RIÊNG BIỆT cho duy nhất vòng tròn chuyển động (đúng như hình minh họa & video)
+  // Hiệu ứng phát sáng RIÊNG BIỆT cho duy nhất vòng tròn chuyển động (chuẩn xác vị trí chấm đổi màu)
   highlightMove(move, duration = 160) {
-    const activeCenterId = this.getCenterForMove(move);
-    const activeLayerIdx = this.getActiveRingIndex(move);
-    if (!activeCenterId || !this.ringElements) return;
+    const target = this.getRingTargetForMove(move);
+    if (!target || !this.ringElements) return;
+    const { centerId: activeCenterId, layerIdx: activeLayerIdx } = target;
 
     if (this.highlightTimeout) {
       clearTimeout(this.highlightTimeout);
@@ -593,7 +616,7 @@ export class ConcentricMandala {
 
     this.ringElements.forEach(({ element, centerId, layerIdx }) => {
       if (centerId === activeCenterId && layerIdx === activeLayerIdx) {
-        // Duy nhất vòng tròn tương ứng với thao tác quay: sáng rực rỡ neon với glow
+        // Duy nhất vòng tròn ôm trọn vị trí chấm đổi màu: sáng rực rỡ neon với glow
         element.setAttribute('stroke', '#38bdf8');
         element.setAttribute('stroke-width', '3.0');
         element.setAttribute('opacity', '1.0');
@@ -622,17 +645,17 @@ export class ConcentricMandala {
   // Hiệu ứng xem trước khi rê chuột qua cụm mặt hoặc nút xoay
   previewRingHover(move) {
     if (this.currentAnim) return;
-    const centerId = this.getCenterForMove(move);
-    const targetLayerIdx = this.getActiveRingIndex(move);
-    if (!centerId || !this.ringElements) return;
+    const target = this.getRingTargetForMove(move);
+    if (!target || !this.ringElements) return;
+    const { centerId: targetCenterId, layerIdx: targetLayerIdx } = target;
 
     this.ringElements.forEach(({ element, centerId: cid, layerIdx }) => {
-      if (cid === centerId && layerIdx === targetLayerIdx) {
+      if (cid === targetCenterId && layerIdx === targetLayerIdx) {
         element.setAttribute('stroke', '#38bdf8');
         element.setAttribute('stroke-width', '2.6');
         element.setAttribute('opacity', '0.95');
         element.setAttribute('filter', 'url(#ring-neon-glow)');
-      } else if (cid === centerId) {
+      } else if (cid === targetCenterId) {
         element.setAttribute('stroke', '#0ea5e9');
         element.setAttribute('stroke-width', '1.2');
         element.setAttribute('opacity', '0.45');
