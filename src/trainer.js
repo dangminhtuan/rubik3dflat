@@ -133,7 +133,6 @@ export class FormulaTrainer {
 
     const move = this.currentFormula.sequence[this.stepIndex];
     this.rubik3D.queueMove(move);
-    this.mandala.animateMove(move, this.rubik3D.animationSpeed);
 
     this.stepIndex++;
     if (this.onStepChange) {

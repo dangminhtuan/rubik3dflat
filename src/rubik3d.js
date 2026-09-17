@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import { FACE_COLORS } from './rubikState.js';
 
 export class Rubik3D {
-  constructor(canvasContainer, rubikState, onMoveComplete, onDirectClick) {
+  constructor(canvasContainer, rubikState, onMoveComplete, onDirectClick, onMoveStart) {
     this.container = canvasContainer;
     this.state = rubikState;
     this.onMoveComplete = onMoveComplete;
     this.onDirectClick = onDirectClick;
+    this.onMoveStart = onMoveStart;
 
     this.cubies = [];
     this.animationQueue = [];
@@ -561,6 +562,10 @@ export class Rubik3D {
 
     this.isAnimating = true;
     const move = this.animationQueue.shift();
+
+    if (this.onMoveStart) {
+      this.onMoveStart(move, this.animationSpeed);
+    }
 
     // Xác định mặt, trục, và góc xoay
     const faceKey = move[0];

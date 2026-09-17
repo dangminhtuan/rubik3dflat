@@ -177,7 +177,8 @@ class App {
       this.canvasContainer,
       this.state,
       (move) => this.onMoveFinished(move),
-      (directMove) => this.executeMove(directMove)
+      (directMove) => this.executeMove(directMove),
+      (move, duration) => this.onMoveStart(move, duration)
     );
 
     // 4. Hệ thống gợi ý & học công thức
@@ -577,7 +578,21 @@ class App {
     this.moveCountEl.textContent = this.moveCount;
 
     this.rubik3D.queueMove(move);
-    this.mandala.animateMove(move, this.rubik3D.animationSpeed);
+  }
+
+  onMoveStart(move, duration) {
+    if (!this.isScrambling) {
+      if (this.mandala) {
+        this.mandala.animateMove(move, duration);
+      }
+      if (this.isAutoSolving || this.isStageSolving) {
+        sound.playClick();
+        this.moveCount++;
+        if (this.moveCountEl) {
+          this.moveCountEl.textContent = this.moveCount;
+        }
+      }
+    }
   }
 
   onMoveFinished(move) {
@@ -923,10 +938,8 @@ class App {
     this.rubik3D.animationSpeed = 160;
 
     moves.forEach(m => {
-      this.moveCount++;
       this.rubik3D.queueMove(m);
     });
-    this.moveCountEl.textContent = this.moveCount;
     if (!this.timerRunning && this.isScrambled) {
       this.startTimer();
     }
@@ -963,10 +976,8 @@ class App {
     this.rubik3D.animationSpeed = 160;
 
     moves.forEach(m => {
-      this.moveCount++;
       this.rubik3D.queueMove(m);
     });
-    this.moveCountEl.textContent = this.moveCount;
     if (!this.timerRunning && this.isScrambled) {
       this.startTimer();
     }
