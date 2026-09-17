@@ -118,7 +118,9 @@ export class Rubik3D {
 
   // TẠO 3 TẤM GƯƠNG SOi 3 MẶT KHUẤT PHÍA SAU (B, D, L)
   createMirrors() {
-    this.mirrorTiles = { B: [], D: [], L: [] };
+    this.mirrorTiles = { U: [], D: [], F: [], B: [], L: [], R: [] };
+    this.mirrorPanels = { U: null, D: null, F: null, B: null, L: null, R: null };
+    this._lastActiveFaces = '';
     const mirrorGroup = new THREE.Group();
     this.scene.add(mirrorGroup);
 
@@ -138,13 +140,20 @@ export class Rubik3D {
         color: 0x070b14,
         roughness: 0.1,
         metalness: 0.8,
+        transparent: true,
+        opacity: 1.0,
       });
       const frame = new THREE.Mesh(frameGeo, frameMat);
       panel.add(frame);
 
       // Viền gương phát sáng neon
       const borderGeo = new THREE.EdgesGeometry(frameGeo);
-      const borderMat = new THREE.LineBasicMaterial({ color: borderHex, linewidth: 2 });
+      const borderMat = new THREE.LineBasicMaterial({
+        color: borderHex,
+        linewidth: 2,
+        transparent: true,
+        opacity: 1.0,
+      });
       const border = new THREE.LineSegments(borderGeo, borderMat);
       panel.add(border);
 
@@ -156,11 +165,13 @@ export class Rubik3D {
             color: new THREE.Color(FACE_COLORS[faceKey]),
             roughness: 0.15,
             metalness: 0.3,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 1.0,
           });
           const tile = new THREE.Mesh(tileGeo, tileMat);
 
-          // Phản chiếu gương (đảo chiều ngang cho chuẩn phản chiếu quang học)
+          // Phản chiếu gương
           const posX = (col - 1) * (tileSize + tileGap);
           const posY = (1 - row) * (tileSize + tileGap);
           tile.position.set(posX, posY, 0.05);
@@ -172,39 +183,146 @@ export class Rubik3D {
       }
 
       mirrorGroup.add(panel);
+      this.mirrorPanels[faceKey] = panel;
     };
 
-    // 1. Gương Mặt Sau (B - Xanh Lá): Đặt lùi ra xa tại Z = -4.8, hơi chếch để nhìn rõ cả 9 ô
+    const D = 4.8;
+
+    // 1. Gương Mặt Sau (B - Xanh Lá): Phản chiếu mặt B khi nhìn từ phía trước
     createMirrorPanel(
       'Mặt Sau (B)',
-      { x: 0.2, y: 0.6, z: -4.8 },
+      { x: 0.2, y: 0.6, z: -D },
       { x: -0.06, y: 0, z: 0 },
       'B',
       0x22c55e
     );
 
-    // 2. Gương Mặt Trái (L - Magenta): Đặt lùi ra xa tại X = -4.8, hơi chếch để nhìn rõ cả 9 ô
+    // 2. Gương Mặt Trước (F - Cyan): Phản chiếu mặt F khi nhìn từ phía sau
+    createMirrorPanel(
+      'Mặt Trước (F)',
+      { x: 0.2, y: 0.6, z: D },
+      { x: 0.06, y: Math.PI, z: 0 },
+      'F',
+      0x06b6d4
+    );
+
+    // 3. Gương Mặt Trái (L - Đỏ/Magenta): Phản chiếu mặt L khi nhìn từ bên phải
     createMirrorPanel(
       'Mặt Trái (L)',
-      { x: -4.8, y: 0.6, z: 0.2 },
+      { x: -D, y: 0.6, z: 0.2 },
       { x: 0, y: Math.PI / 2 + 0.06, z: 0 },
       'L',
       0xe11d48
     );
 
-    // 3. Gương Mặt Dưới (D - Trắng): Đặt lùi ra xa tại Y = -4.8, hơi ngửa lên để nhìn rõ cả 9 ô
+    // 4. Gương Mặt Phải (R - Xanh Dương): Phản chiếu mặt R khi nhìn từ bên trái
+    createMirrorPanel(
+      'Mặt Phải (R)',
+      { x: D, y: 0.6, z: 0.2 },
+      { x: 0, y: -Math.PI / 2 - 0.06, z: 0 },
+      'R',
+      0x2563eb
+    );
+
+    // 5. Gương Mặt Dưới (D - Trắng): Phản chiếu mặt đáy D khi nhìn từ trên xuống
     createMirrorPanel(
       'Mặt Đáy (D)',
-      { x: 0.2, y: -4.8, z: 0.2 },
+      { x: 0.2, y: -D, z: 0.2 },
       { x: -Math.PI / 2 + 0.06, y: 0, z: 0 },
       'D',
       0xffffff
     );
+
+    // 6. Gương Mặt Trên (U - Vàng): Phản chiếu mặt trên U khi nhìn từ dưới lên
+    createMirrorPanel(
+      'Mặt Trên (U)',
+      { x: 0.2, y: D, z: 0.2 },
+      { x: Math.PI / 2 - 0.06, y: 0, z: 0 },
+      'U',
+      0xfacc15
+    );
+
+    this.updateDynamicMirrors();
   }
 
-  // Cập nhật màu trên 3 tấm gương phản chiếu
+  // Thuật toán gương động thông minh: Tự động tính toán hướng camera và chỉ hiện gương các mặt bị khuất
+  updateDynamicMirrors() {
+    if (!this.mirrorPanels || !this.camera) return;
+
+    // Vector hướng từ tâm khối Rubik tới Camera
+    const camDir = this.camera.position.clone().normalize();
+
+    // Vector pháp tuyến của 6 mặt khối Rubik
+    const faceNormals = {
+      U: new THREE.Vector3(0, 1, 0),
+      D: new THREE.Vector3(0, -1, 0),
+      F: new THREE.Vector3(0, 0, 1),
+      B: new THREE.Vector3(0, 0, -1),
+      L: new THREE.Vector3(-1, 0, 0),
+      R: new THREE.Vector3(1, 0, 0),
+    };
+
+    const activeFaceKeys = [];
+
+    for (const [faceKey, normal] of Object.entries(faceNormals)) {
+      const panel = this.mirrorPanels[faceKey];
+      if (!panel) continue;
+
+      // dot > 0: Mặt đang hướng về camera (người dùng nhìn thấy trực tiếp trên khối 3D)
+      // dot <= 0: Mặt đang quay lưng lại với camera (bị che khuất khỏi tầm nhìn)
+      const dot = normal.dot(camDir);
+
+      // Ngưỡng chuyển tiếp mềm:
+      // dot >= 0.12: Thấy trực tiếp -> Ẩn hoàn toàn (opacity = 0)
+      // dot <= -0.05: Bị khuất -> Hiện đầy đủ (opacity = 1)
+      let targetOpacity = 0;
+      if (dot <= -0.05) {
+        targetOpacity = 1.0;
+      } else if (dot < 0.12) {
+        targetOpacity = (0.12 - dot) / 0.17;
+      } else {
+        targetOpacity = 0.0;
+      }
+
+      const isVisible = targetOpacity > 0.02;
+      panel.visible = isVisible;
+
+      if (isVisible) {
+        activeFaceKeys.push(faceKey);
+        if (Math.abs((panel._currentOpacity || 0) - targetOpacity) > 0.015) {
+          panel._currentOpacity = targetOpacity;
+          panel.traverse((child) => {
+            if (child.material) {
+              child.material.opacity = targetOpacity;
+            }
+          });
+        }
+      } else {
+        panel._currentOpacity = 0;
+      }
+    }
+
+    // Cập nhật chip thông tin ở góc màn hình khi danh sách mặt khuất thay đổi
+    const activeKeyStr = activeFaceKeys.slice().sort().join('');
+    if (activeKeyStr !== this._lastActiveFaces) {
+      this._lastActiveFaces = activeKeyStr;
+      this.updateMirrorChip(activeFaceKeys);
+    }
+  }
+
+  // Cập nhật nội dung chip góc hiển thị gương đang hoạt động
+  updateMirrorChip(activeFaceKeys) {
+    const chip = document.querySelector('.overlay-mirrors-chip');
+    if (!chip) return;
+    const keys = activeFaceKeys || Object.keys(this.mirrorPanels || {}).filter(k => this.mirrorPanels[k] && this.mirrorPanels[k].visible);
+    const badges = keys.map(k => `<span style="color:${FACE_COLORS[k]}; font-weight:800">${k}</span>`);
+    const prefix = i18n.t('mirror_chip_prefix') || '🪞 Gương động:';
+    chip.innerHTML = `${prefix} ${badges.length > 0 ? badges.join(' | ') : '—'}`;
+  }
+
+  // Cập nhật màu trên 6 tấm gương phản chiếu
   updateMirrors() {
-    for (const faceKey of ['B', 'D', 'L']) {
+    for (const faceKey of ['U', 'D', 'F', 'B', 'L', 'R']) {
       const faceState = this.state.faces[faceKey];
       const tiles = this.mirrorTiles[faceKey];
       if (!tiles || !faceState) continue;
@@ -215,6 +333,7 @@ export class Rubik3D {
       });
     }
   }
+
 
   // Tương tác kéo chuột xoay góc nhìn, click trực tiếp vào khối/gương để xoay, và zoom to/nhỏ
   setupInteraction() {
@@ -256,9 +375,11 @@ export class Rubik3D {
       const ndc = getPointerNdc(clientX, clientY);
       raycaster.setFromCamera(ndc, this.camera);
 
-      // Tập hợp tất cả đối tượng tương tác: các khối cubies và các ô trên 3 gương
-      const mirrorObjects = Object.values(this.mirrorTiles || {}).flat();
-      const allTargets = [...this.cubies, ...mirrorObjects];
+      // Tập hợp tất cả đối tượng tương tác: các khối cubies và các ô trên các gương đang hiển thị
+      const visibleMirrorTiles = Object.entries(this.mirrorTiles || {})
+        .filter(([faceKey]) => this.mirrorPanels[faceKey] && this.mirrorPanels[faceKey].visible)
+        .flatMap(([_, tiles]) => tiles);
+      const allTargets = [...this.cubies, ...visibleMirrorTiles];
       const intersects = raycaster.intersectObjects(allTargets, false);
 
       if (intersects.length === 0) return;
@@ -325,8 +446,10 @@ export class Rubik3D {
         // Hiển thị con trỏ pointer & tooltip khi rê chuột qua ô Rubik hoặc gương
         const ndc = getPointerNdc(e.clientX, e.clientY);
         raycaster.setFromCamera(ndc, this.camera);
-        const mirrorObjects = Object.values(this.mirrorTiles || {}).flat();
-        const intersects = raycaster.intersectObjects([...this.cubies, ...mirrorObjects], false);
+        const visibleMirrorTiles = Object.entries(this.mirrorTiles || {})
+          .filter(([faceKey]) => this.mirrorPanels[faceKey] && this.mirrorPanels[faceKey].visible)
+          .flatMap(([_, tiles]) => tiles);
+        const intersects = raycaster.intersectObjects([...this.cubies, ...visibleMirrorTiles], false);
 
         if (intersects.length > 0) {
           this.container.style.cursor = 'pointer';
@@ -705,6 +828,7 @@ export class Rubik3D {
   animate() {
     requestAnimationFrame(() => this.animate());
     if (this.visible !== false) {
+      this.updateDynamicMirrors();
       this.renderer.render(this.scene, this.camera);
     }
   }

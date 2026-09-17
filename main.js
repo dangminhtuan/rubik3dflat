@@ -238,6 +238,9 @@ class App {
     if (this.dartboardContainer) {
       this.dartboardContainer.setAttribute('data-view-label', `🎯 ${i18n.t('tab_dartboard')}`);
     }
+    if (this.rubik3D && this.rubik3D.updateMirrorChip) {
+      this.rubik3D.updateMirrorChip();
+    }
     if (this.state.isSolved()) {
       this.statusBadge.innerHTML = '🟢 <span class="btn-lbl">' + i18n.t('status_solved') + '</span>';
     } else if (this.isScrambled) {
