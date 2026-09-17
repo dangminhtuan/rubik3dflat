@@ -559,29 +559,37 @@ export class ConcentricMandala {
   }
 
   // Xác định chính xác tâm và chỉ số vòng tròn (0: inner, 1: middle, 2: outer)
-  // ôm trọn cụm chấm màu đang thực sự di chuyển trên hình mandala 2D:
+  // Dựa trên bán kính MÀ CÁC CHẤM CẠnh bên THỰC SỰ quỹ đạo quanh trục xoay (axisCenter):
+  //
+  // Dữ liệu hình học tính toán (kiểm tra từ phân tích script):
+  //   Move U (axisCenter=C1): R[0,1,2]=118, L[0,1,2]=118 → 6/12 dots ở r=118 → C1 INNER (layerIdx=0)
+  //   Move D (axisCenter=C1): R[6,7,8]=166, L[6,7,8]=166 → 6/12 dots ở r=166 → C1 OUTER (layerIdx=2)
+  //   Move F (axisCenter=C2): R[0,3,6]=118, D[0,1,2]=118 → 6/12 dots ở r=118 → C2 INNER (layerIdx=0)
+  //   Move B (axisCenter=C2): U[0,1,2]=118, L[0,3,6]=118, D[6,7,8]=166, R[2,5,8]=166 → split, chọn OUTER
+  //   Move R (axisCenter=C3): U[2,5,8]=166, D[2,5,8]=166 → 6/12 dots ở r=166 → C3 OUTER (layerIdx=2)
+  //   Move L (axisCenter=C3): U[0,3,6]=118, D[0,3,6]=118 → 6/12 dots ở r=118 → C3 INNER (layerIdx=0)
   getRingTargetForMove(move) {
     if (!move) return null;
     const faceKey = move[0].toUpperCase();
     switch (faceKey) {
       case 'U':
-        // Mặt U ở Đỉnh Trên -> Vòng trong cùng (r=118) của tâm C1 (Đỉnh Trên)
+        // 6/12 side dots orbit C1 at r=118 (inner): R[0,1,2] + L[0,1,2]
         return { centerId: 'C1', layerIdx: 0 };
-      case 'F':
-        // Mặt F ở Dưới - Trái -> Vòng trong cùng (r=118) của tâm C2 (Đáy Trái)
-        return { centerId: 'C2', layerIdx: 0 };
-      case 'R':
-        // Mặt R ở Dưới - Phải -> Vòng trong cùng (r=118) của tâm C3 (Đáy Phải)
-        return { centerId: 'C3', layerIdx: 0 };
-      case 'L':
-        // Mặt L ở Trên - Trái -> Vòng ở giữa (r=142) của tâm C2 (quét trực diện qua cụm chấm mặt L và cột trái)
-        return { centerId: 'C2', layerIdx: 1 };
-      case 'B':
-        // Mặt B ở Trên - Phải -> Vòng ở giữa (r=142) của tâm C3 (quét trực diện qua cụm chấm mặt B và cột phải)
-        return { centerId: 'C3', layerIdx: 1 };
       case 'D':
-        // Mặt D ở Đáy Dưới -> Vòng ngoài cùng (r=166) của tâm C2 (quét toàn bộ vòm đáy chứa cụm chấm mặt D)
+        // 6/12 side dots orbit C1 at r=166 (outer): R[6,7,8] + L[6,7,8]
+        return { centerId: 'C1', layerIdx: 2 };
+      case 'F':
+        // 6/12 side dots orbit C2 at r=118 (inner): R[0,3,6] + D[0,1,2]
+        return { centerId: 'C2', layerIdx: 0 };
+      case 'B':
+        // Split 6/6 between inner/outer; D[6,7,8]+R[2,5,8] at r=166 → outer
         return { centerId: 'C2', layerIdx: 2 };
+      case 'R':
+        // 6/12 side dots orbit C3 at r=166 (outer): U[2,5,8] + D[2,5,8]
+        return { centerId: 'C3', layerIdx: 2 };
+      case 'L':
+        // 6/12 side dots orbit C3 at r=118 (inner): U[0,3,6] + D[0,3,6]
+        return { centerId: 'C3', layerIdx: 0 };
       case 'M':
         return { centerId: 'C3', layerIdx: 1 };
       case 'E':
