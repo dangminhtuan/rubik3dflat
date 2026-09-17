@@ -39,6 +39,8 @@ class App {
     this.tabMandala = document.getElementById('tab-mandala');
     this.tabDartboard = document.getElementById('tab-dartboard');
     this.tabDual = document.getElementById('tab-dual');
+    this.btnSwapDual = document.getElementById('btn-swap-dual');
+    this.isDualSwapped = (localStorage.getItem('rubik_pref_dual_swapped') === 'true');
     this.mandalaHint = document.getElementById('mandala-hint');
 
     this.timerEl = document.getElementById('timer-display');
@@ -483,7 +485,20 @@ class App {
       this.tabDartboard.addEventListener('click', () => this.set2DViewMode('dartboard'));
     }
     if (this.tabDual) {
-      this.tabDual.addEventListener('click', () => this.set2DViewMode('dual'));
+      this.tabDual.addEventListener('click', () => {
+        if (this.current2DMode === 'dual') {
+          // Khi đang ở Dual View mà bấm lại vào chính tab Dual -> Tự động hoán đổi vị trí luôn!
+          this.toggleDualSwap();
+        } else {
+          this.set2DViewMode('dual');
+        }
+      });
+    }
+    if (this.btnSwapDual) {
+      this.btnSwapDual.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleDualSwap();
+      });
     }
 
     // Sự kiện chuyển đổi giữa 2 chế độ thanh đáy: Gia Sư AI vs Thư Viện Mẫu
@@ -704,16 +719,40 @@ class App {
     this.rubik3D.updateMirrors();
   }
 
+  applyDualSwap() {
+    if (this.mandalaViewportsWrapper) {
+      this.mandalaViewportsWrapper.classList.toggle('swap-order', !!this.isDualSwapped);
+    }
+    if (this.btnSwapDual) {
+      this.btnSwapDual.classList.toggle('active', !!this.isDualSwapped);
+      this.btnSwapDual.title = this.isDualSwapped
+        ? i18n.t('btn_swap_dual_active_title')
+        : i18n.t('btn_swap_dual_title');
+    }
+  }
+
+  toggleDualSwap() {
+    this.isDualSwapped = !this.isDualSwapped;
+    localStorage.setItem('rubik_pref_dual_swapped', this.isDualSwapped ? 'true' : 'false');
+    this.applyDualSwap();
+    const msg = this.isDualSwapped
+      ? i18n.t('toast_swapped_dartboard')
+      : i18n.t('toast_swapped_mandala');
+    this.showToast(msg);
+  }
+
   set2DViewMode(mode) {
     this.current2DMode = mode;
     if (this.tabMandala) this.tabMandala.classList.toggle('active', mode === 'mandala');
     if (this.tabDartboard) this.tabDartboard.classList.toggle('active', mode === 'dartboard');
     if (this.tabDual) this.tabDual.classList.toggle('active', mode === 'dual');
+    if (this.btnSwapDual) this.btnSwapDual.style.display = (mode === 'dual') ? 'inline-flex' : 'none';
 
     if (mode === 'dual') {
       if (this.mandalaViewportsWrapper) {
         this.mandalaViewportsWrapper.classList.add('dual-mode');
       }
+      this.applyDualSwap();
       if (this.mandalaContainer) this.mandalaContainer.style.display = 'flex';
       if (this.dartboardContainer) this.dartboardContainer.style.display = 'flex';
       if (this.mandala) this.mandala.update();
