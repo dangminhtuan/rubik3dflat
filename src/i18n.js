@@ -27,6 +27,8 @@ const TRANSLATIONS = {
 
     // Menu Con Mắt (Tùy chọn)
     popover_title: '👁️ TÙY CHỌN HIỂN THỊ',
+    opt_rubik3d_title: '🧊 Khối Rubik 3D',
+    opt_rubik3d_desc: 'Bật: Hiện mô phỏng 3D & gương | Tắt: 2D toàn màn hình',
     opt_labels_title: '🏷️ Nhãn chữ nút bấm',
     opt_labels_desc: 'Bật: Icon + Chữ | Tắt: Chỉ giữ Icon (Pro Mode)',
     opt_stats_title: '⏱️ Bộ đếm Bước & Thời gian',
@@ -151,6 +153,8 @@ const TRANSLATIONS = {
 
     // Display Popover
     popover_title: '👁️ DISPLAY PREFERENCES',
+    opt_rubik3d_title: '🧊 3D Rubik Cube',
+    opt_rubik3d_desc: 'On: Show 3D cube & mirrors | Off: Fullscreen 2D',
     opt_labels_title: '🏷️ Button text labels',
     opt_labels_desc: 'On: Icon + Text | Off: Icons only (Pro Mode)',
     opt_stats_title: '⏱️ Move & Time stats',
@@ -275,6 +279,8 @@ const TRANSLATIONS = {
 
     // Popover
     popover_title: '👁️ 表示オプション',
+    opt_rubik3d_title: '🧊 3Dルービックキューブ',
+    opt_rubik3d_desc: 'オン: 3Dキューブ表示 | オフ: 2D全画面',
     opt_labels_title: '🏷️ ボタンのテキスト表示',
     opt_labels_desc: 'ON: アイコン+文字 | OFF: アイコンのみ (Pro)',
     opt_stats_title: '⏱️ 手数 & タイム計測',
@@ -399,6 +405,8 @@ const TRANSLATIONS = {
 
     // Popover
     popover_title: '👁️ 显示偏好设置',
+    opt_rubik3d_title: '🧊 3D魔方模型',
+    opt_rubik3d_desc: '开启: 显示3D魔方与镜面 | 关闭: 2D全屏',
     opt_labels_title: '🏷️ 按钮文字标签',
     opt_labels_desc: '开启: 图标+文字 | 关闭: 仅图标 (极简极客模式)',
     opt_stats_title: '⏱️ 步数与计时器',
@@ -523,6 +531,8 @@ const TRANSLATIONS = {
 
     // Popover
     popover_title: '👁️ OPCIONES DE VISUALIZACIÓN',
+    opt_rubik3d_title: '🧊 Cubo Rubik 3D',
+    opt_rubik3d_desc: 'Activar: Mostrar 3D y espejos | Desactivar: 2D pantalla completa',
     opt_labels_title: '🏷️ Etiquetas de botones',
     opt_labels_desc: 'Activado: Icono + Texto | Desactivado: Solo icono (Pro)',
     opt_stats_title: '⏱️ Contador de movimientos y tiempo',

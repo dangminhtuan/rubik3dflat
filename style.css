@@ -652,6 +652,35 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
   letter-spacing: 0.2px;
 }
 
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-reset-rubik-alt {
+  display: none;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-reset-rubik-alt:hover {
+  background: rgba(51, 65, 85, 0.95);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.btn-coach-step-inline {
+  display: none;
+}
+
 .mandala-viewport {
   flex: 1;
   width: 100%;
@@ -1062,4 +1091,40 @@ body.icon-only-mode .btn-thumb-play .thumb-icon {
     width: 44px;
     height: 44px;
   }
+}
+
+/* =======================================================
+   CHẾ ĐỘ ẨN KHỐI 3D (2D FULLSCREEN FOCUS)
+   ======================================================= */
+body.hide-rubik-3d .viewport-3d-col {
+  display: none !important;
+}
+
+body.hide-rubik-3d .main-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: 1fr !important;
+  height: calc(100vh - 42px);
+  height: calc(100dvh - 42px);
+}
+
+body.hide-rubik-3d .right-panel {
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+body.hide-rubik-3d .mandala-section {
+  flex: 1 !important;
+  min-height: 0 !important;
+  padding: 4px 12px;
+}
+
+body.hide-rubik-3d .btn-reset-rubik-alt {
+  display: inline-flex !important;
+}
+
+body.hide-rubik-3d .btn-coach-step-inline {
+  display: inline-flex !important;
 }

@@ -52,6 +52,7 @@ class App {
     this.btnDisplayToggle = document.getElementById('btn-display-toggle');
     this.displayPopover = document.getElementById('display-popover');
     this.btnClosePopover = document.getElementById('btn-close-popover');
+    this.chkRubik3D = document.getElementById('chk-rubik-3d');
     this.chkLabels = document.getElementById('chk-labels');
     this.chkStats = document.getElementById('chk-stats');
     this.chkMoveBar = document.getElementById('chk-move-bar');
@@ -62,6 +63,7 @@ class App {
 
     // Tải cấu hình hiển thị từ localStorage
     this.prefs = {
+      rubik3D: localStorage.getItem('rubik_pref_rubik3d') !== 'false', // Mặc định bật (true)
       labels: localStorage.getItem('rubik_pref_labels') !== 'false',
       stats: localStorage.getItem('rubik_pref_stats') !== 'false',
       moveBar: localStorage.getItem('rubik_pref_moveBar') !== 'false',
@@ -92,9 +94,11 @@ class App {
     this.coachHintText = document.getElementById('coach-hint-text');
     this.coachSteps = document.getElementById('coach-steps');
     this.btnCoachStep = document.getElementById('btn-coach-step');
+    this.btnCoachStepInline = document.getElementById('btn-coach-step-inline');
     this.btnCoachStage = document.getElementById('btn-coach-stage');
     this.btnCoachAuto = document.getElementById('btn-coach-auto');
     this.btnCoachUndo = document.getElementById('btn-coach-undo');
+    this.btnResetRubikAlt = document.getElementById('btn-reset-rubik-alt');
     if (this.btnCoachUndo) this.btnCoachUndo.disabled = true;
 
     this.coach = new CoachEngine();
@@ -109,6 +113,16 @@ class App {
   }
 
   applyPreferences() {
+    // 0. Khối Rubik 3D (Mặc định bật, tắt để trải nghiệm 2D toàn màn hình)
+    if (this.prefs.rubik3D) {
+      document.body.classList.remove('hide-rubik-3d');
+      if (this.rubik3D) this.rubik3D.setVisible(true);
+    } else {
+      document.body.classList.add('hide-rubik-3d');
+      if (this.rubik3D) this.rubik3D.setVisible(false);
+    }
+    if (this.chkRubik3D) this.chkRubik3D.checked = this.prefs.rubik3D;
+
     // 1. Nhãn chữ
     if (this.prefs.labels) {
       document.body.classList.remove('icon-only-mode');
@@ -139,6 +153,7 @@ class App {
     }
     if (this.chkAutoSolve) this.chkAutoSolve.checked = this.prefs.autoSolve;
 
+    localStorage.setItem('rubik_pref_rubik3d', this.prefs.rubik3D);
     localStorage.setItem('rubik_pref_labels', this.prefs.labels);
     localStorage.setItem('rubik_pref_stats', this.prefs.stats);
     localStorage.setItem('rubik_pref_moveBar', this.prefs.moveBar);
@@ -250,6 +265,9 @@ class App {
     if (this.btnResetRubik) {
       this.btnResetRubik.addEventListener('click', () => this.resetGame());
     }
+    if (this.btnResetRubikAlt) {
+      this.btnResetRubikAlt.addEventListener('click', () => this.resetGame());
+    }
 
     // Menu Con Mắt & Tùy chọn giao diện
     if (this.btnDisplayToggle && this.displayPopover) {
@@ -275,6 +293,12 @@ class App {
     }
 
     // Checkbox Tùy chọn giao diện
+    if (this.chkRubik3D) {
+      this.chkRubik3D.addEventListener('change', (e) => {
+        this.prefs.rubik3D = e.target.checked;
+        this.applyPreferences();
+      });
+    }
     if (this.chkLabels) {
       this.chkLabels.addEventListener('change', (e) => {
         this.prefs.labels = e.target.checked;
@@ -393,6 +417,7 @@ class App {
         this.coachPanel.style.display = 'flex';
         this.formulaPanel.style.display = 'none';
         if (this.btnCoachStep) this.btnCoachStep.style.display = 'inline-flex';
+        if (this.btnCoachStepInline) this.btnCoachStepInline.style.display = '';
         this.updateCoachUI();
       });
 
@@ -404,6 +429,7 @@ class App {
         this.formulaPanel.style.display = 'flex';
         this.coachPanel.style.display = 'none';
         if (this.btnCoachStep) this.btnCoachStep.style.display = 'none';
+        if (this.btnCoachStepInline) this.btnCoachStepInline.style.display = 'none';
       });
     }
 
@@ -416,6 +442,12 @@ class App {
 
     if (this.btnCoachStep) {
       this.btnCoachStep.addEventListener('click', () => {
+        this.stepSolve();
+      });
+    }
+
+    if (this.btnCoachStepInline) {
+      this.btnCoachStepInline.addEventListener('click', () => {
         this.stepSolve();
       });
     }
@@ -728,6 +760,7 @@ class App {
       }
       if (this.btnCoachAuto) this.btnCoachAuto.disabled = true;
       if (this.btnCoachStep) this.btnCoachStep.disabled = true;
+      if (this.btnCoachStepInline) this.btnCoachStepInline.disabled = true;
       if (this.btnCoachStage) this.btnCoachStage.disabled = true;
     } else {
       this.currentCoachMoves.forEach((m, idx) => {
@@ -743,6 +776,7 @@ class App {
       });
       if (this.btnCoachAuto) this.btnCoachAuto.disabled = false;
       if (this.btnCoachStep) this.btnCoachStep.disabled = false;
+      if (this.btnCoachStepInline) this.btnCoachStepInline.disabled = false;
       if (this.btnCoachStage) this.btnCoachStage.disabled = false;
     }
   }

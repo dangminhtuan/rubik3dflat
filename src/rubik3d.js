@@ -586,8 +586,17 @@ export class Rubik3D {
     this.renderer.setSize(width, height);
   }
 
+  setVisible(visible) {
+    this.visible = visible;
+    if (visible) {
+      setTimeout(() => this.onResize(), 50);
+    }
+  }
+
   animate() {
     requestAnimationFrame(() => this.animate());
-    this.renderer.render(this.scene, this.camera);
+    if (this.visible !== false) {
+      this.renderer.render(this.scene, this.camera);
+    }
   }
 }
